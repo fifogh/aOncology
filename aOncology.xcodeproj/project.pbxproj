@@ -7,14 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6DC6A44A208D5C5B0014A080 /* DrugDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */; };
+		6DC6A44C208D8A130014A080 /* DrugTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */; };
 		6DC906BA2086B3C700286AB6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906B92086B3C700286AB6 /* AppDelegate.swift */; };
 		6DC906BC2086B3C700286AB6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906BB2086B3C700286AB6 /* ViewController.swift */; };
 		6DC906BF2086B3C700286AB6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906BD2086B3C700286AB6 /* Main.storyboard */; };
 		6DC906C12086B3C700286AB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906C02086B3C700286AB6 /* Assets.xcassets */; };
 		6DC906C42086B3C700286AB6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906C22086B3C700286AB6 /* LaunchScreen.storyboard */; };
+		6DC906CC2086B4DB00286AB6 /* donnut.png in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906CB2086B4DB00286AB6 /* donnut.png */; };
+		6DC906CE2086CA4500286AB6 /* drugGene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906CD2086CA4500286AB6 /* drugGene.swift */; };
+		6DC906D2208AFAC600286AB6 /* loginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906D1208AFAC600286AB6 /* loginViewController.swift */; };
+		6DC906D4208BDE9400286AB6 /* combination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906D3208BDE9400286AB6 /* combination.swift */; };
+		6DC906D6208BF78E00286AB6 /* combTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906D5208BF78E00286AB6 /* combTableViewCell.swift */; };
+		6DC906DE208C254F00286AB6 /* dgRelData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906DD208C254F00286AB6 /* dgRelData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrugDetailViewController.swift; sourceTree = "<group>"; };
+		6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrugTableViewCell.swift; sourceTree = "<group>"; };
 		6DC906B62086B3C700286AB6 /* aOncology.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = aOncology.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DC906B92086B3C700286AB6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6DC906BB2086B3C700286AB6 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -22,6 +32,12 @@
 		6DC906C02086B3C700286AB6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6DC906C32086B3C700286AB6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6DC906C52086B3C700286AB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6DC906CB2086B4DB00286AB6 /* donnut.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = donnut.png; sourceTree = "<group>"; };
+		6DC906CD2086CA4500286AB6 /* drugGene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = drugGene.swift; sourceTree = "<group>"; };
+		6DC906D1208AFAC600286AB6 /* loginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loginViewController.swift; sourceTree = "<group>"; };
+		6DC906D3208BDE9400286AB6 /* combination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = combination.swift; sourceTree = "<group>"; };
+		6DC906D5208BF78E00286AB6 /* combTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = combTableViewCell.swift; sourceTree = "<group>"; };
+		6DC906DD208C254F00286AB6 /* dgRelData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = dgRelData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,11 +71,19 @@
 			isa = PBXGroup;
 			children = (
 				6DC906B92086B3C700286AB6 /* AppDelegate.swift */,
+				6DC906DD208C254F00286AB6 /* dgRelData.swift */,
+				6DC906CD2086CA4500286AB6 /* drugGene.swift */,
+				6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */,
+				6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */,
+				6DC906D3208BDE9400286AB6 /* combination.swift */,
+				6DC906D5208BF78E00286AB6 /* combTableViewCell.swift */,
+				6DC906D1208AFAC600286AB6 /* loginViewController.swift */,
 				6DC906BB2086B3C700286AB6 /* ViewController.swift */,
 				6DC906BD2086B3C700286AB6 /* Main.storyboard */,
 				6DC906C02086B3C700286AB6 /* Assets.xcassets */,
 				6DC906C22086B3C700286AB6 /* LaunchScreen.storyboard */,
 				6DC906C52086B3C700286AB6 /* Info.plist */,
+				6DC906CB2086B4DB00286AB6 /* donnut.png */,
 			);
 			path = aOncology;
 			sourceTree = "<group>";
@@ -124,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				6DC906C42086B3C700286AB6 /* LaunchScreen.storyboard in Resources */,
+				6DC906CC2086B4DB00286AB6 /* donnut.png in Resources */,
 				6DC906C12086B3C700286AB6 /* Assets.xcassets in Resources */,
 				6DC906BF2086B3C700286AB6 /* Main.storyboard in Resources */,
 			);
@@ -136,8 +161,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DC906D6208BF78E00286AB6 /* combTableViewCell.swift in Sources */,
+				6DC906D2208AFAC600286AB6 /* loginViewController.swift in Sources */,
 				6DC906BC2086B3C700286AB6 /* ViewController.swift in Sources */,
+				6DC906CE2086CA4500286AB6 /* drugGene.swift in Sources */,
 				6DC906BA2086B3C700286AB6 /* AppDelegate.swift in Sources */,
+				6DC6A44A208D5C5B0014A080 /* DrugDetailViewController.swift in Sources */,
+				6DC6A44C208D8A130014A080 /* DrugTableViewCell.swift in Sources */,
+				6DC906DE208C254F00286AB6 /* dgRelData.swift in Sources */,
+				6DC906D4208BDE9400286AB6 /* combination.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,7 +312,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mine.aOncology;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -294,7 +326,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.mine.aOncology;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 4.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};
