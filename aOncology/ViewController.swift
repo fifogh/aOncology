@@ -198,6 +198,7 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
 }
 
 extension ViewController: geneAddedDelegate {
+    
     func drugListAdjusted ( outDrugL: [String] ){
         drugNameL = outDrugL
         drugListTableview.reloadData()
