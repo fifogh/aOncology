@@ -28,9 +28,11 @@ class dgRelation_C {
  var dgRelationL = [dgRelation_C]()
 
 */
-var geneNameL = [String]()
-var drugNameL = [String]()
+var geneL = [String]()
+var drugL = [Drug_C] ()
 var comboL    = [[Int]]()
+
+
 
 var noDrugNameL = [String]()
 
@@ -79,8 +81,9 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
             if let destinationVC = segue.destination as? DrugDetailViewController{
                 let myIndexPath = self.drugListTableview.indexPathForSelectedRow!
                 let row = myIndexPath.row
-                destinationVC.navigationItem.title = drugNameL[row]
-                destinationVC.drugName = drugNameL[row]
+                destinationVC.navigationItem.title = drugL[row].drugName
+              //  destinationVC.drugName = drugNameL[row]
+                destinationVC.drugName = drugL[row].drugName
             }
         }
     }
@@ -108,9 +111,10 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (tableView == geneInputTableView){
-            return geneNameL.count
+            return geneL.count
         } else if (tableView == drugListTableview){
-            return drugNameL.count
+          //  return drugNameL.count
+            return drugL.count
         } else {
             return comboL.count
         }
@@ -121,23 +125,30 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
         
         if (tableView == geneInputTableView){
            let cell = tableView.dequeueReusableCell(withIdentifier: "cellGeneId")!
-           let text = geneNameL[indexPath.row]
+           let text = geneL[indexPath.row]
            cell.textLabel?.text = text
 
            return cell
 
          } else if (tableView == drugListTableview){
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellDrugId") as! DrugTableViewCell
-            let text = drugNameL[indexPath.row]
+            let text = drugL[indexPath.row].drugName
             cell.drugName?.text = text
             cell.delegate = self
             cell.indexPath = indexPath
+            
+            if (drugL[indexPath.row].allowed == false ) {
+                cell.checkMark.image = UIImage(named: "tick_red" )
+            } else {
+                 cell.checkMark.image = UIImage(named: "Check_mark" )
+            }
+
             return cell
             
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellCombId") as! combTableViewCell
-            let text1 = drugNameL [comboL[indexPath.row][0]]
-            let text2 = drugNameL [comboL[indexPath.row][1]]
+            let text1 = drugL [comboL[indexPath.row][0]].drugName
+            let text2 = drugL [comboL[indexPath.row][1]].drugName
 
             cell.drug1.text = text1
             cell.drug2.text = text2
@@ -149,9 +160,9 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             if (tableView == geneInputTableView){
-               geneNameL.remove(at: indexPath.row)
-               subGene ()
-               tableView.deleteRows(at: [indexPath], with: .fade)
+                geneL.remove(at: indexPath.row)
+                subGene ()
+                tableView.deleteRows(at: [indexPath], with: .fade)
             }
            
         }
@@ -171,26 +182,26 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     }
     
     func addGene (gene: String) {
-        if geneNameL.contains(gene) {
+        if geneL.contains(gene) {
             // nothing to do
         }else{
-            geneNameL.append(gene)
+            geneL.append(gene)
             
             self.geneInputTableView.beginUpdates()
-            self.geneInputTableView.insertRows(at: [IndexPath.init(row: geneNameL.count-1, section: 0)], with: .automatic)
+            self.geneInputTableView.insertRows(at: [IndexPath.init(row: geneL.count-1, section: 0)], with: .automatic)
             self.geneInputTableView.endUpdates()
             
             myGeneDrug.newGeneDelegate  = self
-            myGeneDrug.geneToAdd (name: gene,  inDrugL: drugNameL)
-            geneCount.text = String( geneNameL.count)
+            myGeneDrug.geneToAdd (theGene: gene,  inDrugL: drugL)
+            geneCount.text = String( geneL.count)
             
          }
     }
     
     func subGene () {
-        myGeneDrug.genesToRebuild (geneL: geneNameL)
-        geneCount.text = String( geneNameL.count)
-        drugCount.text = String( drugNameL.count)
+        myGeneDrug.genesToRebuild (geneL: geneL)
+        geneCount.text = String( geneL.count)
+        drugCount.text = String( drugL.count)
         combCount.text = String( comboL.count)
 
     }    
@@ -199,19 +210,19 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
 
 extension ViewController: geneAddedDelegate {
     
-    func drugListAdjusted ( outDrugL: [String] ){
-        drugNameL = outDrugL
+    func drugListAdjusted ( outDrugL: [Drug_C] ){
+        drugL = outDrugL
         drugListTableview.reloadData()
         var theList = [Int]()
         var i:Int = 0
-        for _ in drugNameL {
+        for _ in drugL {
             theList.append(i)
             i=i+1
         }
         comboL =  myCombo.combinationsWithoutRepetitionFrom (elements: theList, taking: 2)
         combListTableview.reloadData()
-        geneCount.text = String( geneNameL.count)
-        drugCount.text = String( drugNameL.count)
+        geneCount.text = String( geneL.count)
+        drugCount.text = String( drugL.count)
         combCount.text = String( comboL.count)
     }
 }
@@ -228,12 +239,12 @@ extension ViewController: OptionButtonsDelegate {
     func checkMarkTapped(at index:IndexPath){
         
         let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
-        if (cell.drugAllowed) {
-            cell.drugAllowed = false
+        if (drugL[index.row].allowed == true ) {
+            drugL[index.row].allowed = false
             cell.checkMark.image = UIImage(named: "tick_red" )
             
         } else {
-            cell.drugAllowed = true
+            drugL[index.row].allowed = true
             cell.checkMark.image = UIImage(named: "Check_mark" )
 
         }

@@ -1,9 +1,10 @@
 var dicGDL =
 [ "ABCB1" :
-    [ "docetaxel",
-      "doxorubicin",
-      "epirubicin",
-      "paclitaxel" ],
+    [   "docetaxel": 3,
+        "doxorubicin":3,
+        "epirubicin":3,
+        "paclitaxel":4 ],
+ /*
  "ABL1" :
     [ "alectinib",
       "axitinib",
@@ -33,11 +34,13 @@ var dicGDL =
     [ "alfuzosin" ],
  "ADRA1x" :
     [ "alfuzosin" ],
+ */
  "ALK" :
-    [ "alectinib",
-      "ceritinib",
-      "crizotinib",
-      "brigatinib" ],
+    [   "alectinib" :2,
+        "ceritinib" :2,
+        "crizotinib" :2,
+        "brigatinib" :2],
+ /*
  "ARAF" :
     [ "vemurafenib" ],
  "AURKA" :
@@ -188,19 +191,21 @@ var dicGDL =
     [ "macitentan" ],
  "EDNRB" :
     [ "macitentan" ],
+ */
  "EGFR" :
-    [ "afatinib",
-      "ceritinib",
-      "cetuximab",
-      "erlotinib",
-      "gefitinib",
-      "ibrutinib",
-      "lapatinib",
-      "necitumumab",
-      "panitumumab",
-      "vandetanib",
-      "neratinib",
-      "brigatinib" ],
+    [ "afatinib"    :5,
+      "ceritinib"   :5,
+      "cetuximab"   :5,
+      "erlotinib"   :5,
+      "gefitinib"   :5,
+      "ibrutinib"   :5,
+      "lapatinib"   :5,
+      "necitumumab" :5,
+      "panitumumab" :5,
+      "vandetanib"  :5,
+      "neratinib"   :5,
+      "brigatinib"  :5],
+ /*
  "EPHA2" :
     [ "dasatinib",
       "regorafenib" ],
@@ -944,4 +949,5 @@ var dicGDL =
       "vandetanib",
       "vemurafenib",
       "brigatinib"]
+ */
 ]
