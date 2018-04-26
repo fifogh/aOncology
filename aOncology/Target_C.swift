@@ -52,6 +52,18 @@ class Target_C : Gene_C  {
     }
 }
 
+//---------------------------------------------------------
+// TARGET Class
+class TargetMode_C : Target_C  {
+    
+    var mode   : String?       // direct/indirect/semi_direct
+    
+    init (id: Int, hugoName: String, aberration: String, mode: String){
+        self.mode = mode
+        
+        super.init (id: id, hugoName: hugoName, aberration: aberration)
+    }
+}
 
 //---------------------------------------------------------
 // DrugIc50 Class
@@ -74,8 +86,8 @@ class AberDrugL_C  {
     var aberration : String           // Aberration Description
     var drugIc50L  : [DrugIc50_C]!    // Ic50 value
     
-    init (_aberration: String){
-        aberration = _aberration
+    init (aberration: String){
+        self.aberration = aberration
         drugIc50L  = [DrugIc50_C]()
     }
 }
@@ -87,10 +99,24 @@ class TargetDrugs_C  {
     var gene : Gene_C                   // HugoName of the Gene Description
     var aberDrugL  : [AberDrugL_C ]!    // list of aberration/ Drug lists
     
-    init (_gene: Gene_C){
-        gene = _gene
-        aberDrugL = [AberDrugL_C ]()
+    init (gene: Gene_C){
+        self.gene = gene
+        self.aberDrugL = [AberDrugL_C ]()
     }
 }
+
+//---------------------------------------------------------
+// TargetDrug Class
+class DTRelation_C  {
+    
+    var drugIc50     : DrugIc50_C          // HugoName of the Gene Description
+    var targetModeL  : [TargetMode_C]!     // list of aberration/ Drug lists
+    
+    init (drugIc50: DrugIc50_C, targetMode:TargetMode_C){
+        self.drugIc50 = drugIc50
+        self.targetModeL.append (targetMode)
+    }
+}
+
 
  var targetDrugsL = [TargetDrugs_C]()

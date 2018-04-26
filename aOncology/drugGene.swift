@@ -29,7 +29,7 @@ import Foundation
 
 
 protocol geneAddedDelegate{
-    func drugListAdjusted (outDrugL: [Drug_C])
+    func drugListAdjusted (outDrugL: [DTRelation_C])
 }
 
 /*
@@ -98,11 +98,13 @@ class geneDrugs {
     }
 
     
-    func targetToAdd (theTarget: Target_C,  inDrugL: [Drug_C]) {
+    func targetToAdd (theTarget: Target_C,  inDrugL: [DTRelation_C]) {
        
        // var updDrugL :[DrugIc50_C] = inDrugL
-        var updDrugL :[DrugIc50_C] = [DrugIc50_C]()
+    //    var updDrugL :[DrugIc50_C] = [DrugIc50_C]()
+        var updDrugL :[DTRelation_C] = [DTRelation_C]()
 
+        
         if let aberL = dicGDL3[theTarget.hugoName] {
             // the HugoName exist with some aberrations
             // aberration exist at least with empty string
@@ -112,11 +114,16 @@ class geneDrugs {
                 // drugIc50 List exist for that aberration
                 
                 for (drug, ic50) in drugIc50L {
-                    if updDrugL.contains(where: { $0.drugName == drug  }){
+                    
+//                    if updDrugL.contains(where: { $0.drugName == drug  }){
+                    if updDrugL.contains (where: { $0.drugIc50.drugName == drug  }){
                         //already in there
                     } else {
                         print ("Real aberration Added \(drug) \n")
-                        updDrugL.append (DrugIc50_C ( drugId:0, drugName: drug, _Ic50: ic50) )
+                        let newDrugIc50 = DrugIc50_C ( drugId: 0, drugName : drug , _Ic50: ic50)
+                        let newTargetMode = TargetMode_C (id: 0, hugoName: theTarget.hugoName, aberration: theTarget.aberDesc!, mode: "direct")
+                        //       updDrugL.append (DrugIc50_C ( drugId:0, drugName: drug, _Ic50: ic50) )
+                         updDrugL.append (DTRelation_C (drugIc50: newDrugIc50, targetMode:newTargetMode) )
                     }
                 }
             } else {
@@ -162,8 +169,9 @@ class geneDrugs {
     
     
     func geneToSub (target: Target_C){
+        /*
         var newDrugL = [Drug_C]()
-         /*
+      
         // rebuild the entire drug list
         for target in targetL {
            
@@ -177,10 +185,11 @@ class geneDrugs {
                     newDrugL.append ( Drug_C (id:0, name : d))
                 }
             }
-        }*/
+        }
         newGeneDelegate.drugListAdjusted (outDrugL : newDrugL )
+      */
     }
-    
+ 
     
 }
 

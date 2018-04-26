@@ -29,7 +29,8 @@ class dgRelation_C {
 
 */
 var targetL  = [Target_C]()
-var drugL    = [Drug_C] ()
+//var drugL    = [Drug_C] ()
+var drugL    = [DTRelation_C] ()
 var comboL   = [[Int]]()
 
 
@@ -100,9 +101,9 @@ class ViewController: UIViewController  {
             if let destinationVC = segue.destination as? DrugDetailViewController{
                 let myIndexPath = self.drugListTableview.indexPathForSelectedRow!
                 let row = myIndexPath.row
-                destinationVC.navigationItem.title = drugL[row].drugName
+                destinationVC.navigationItem.title = drugL[row].drugIc50.drugName
               //  destinationVC.drugName = drugNameL[row]
-                destinationVC.drugName = drugL[row].drugName
+                destinationVC.drugName = drugL[row].drugIc50.drugName
             }
         }
     }
@@ -189,12 +190,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             
         } else if (tableView == drugListTableview){
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellDrugId") as! DrugTableViewCell
-            let text = drugL[indexPath.row].drugName
+            let text = drugL[indexPath.row].drugIc50.drugName
             cell.drugName?.text = text
             cell.delegate = self
             cell.indexPath = indexPath
             
-            if (drugL[indexPath.row].allowed == false ) {
+            if (drugL[indexPath.row].drugIc50.allowed == false ) {
                 cell.checkMark.image = UIImage(named: "tick_red" )
             } else {
                 cell.checkMark.image = UIImage(named: "Check_mark" )
@@ -204,8 +205,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             
         } else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellCombId") as! combTableViewCell
-            let text1 = drugL [comboL[indexPath.row][0]].drugName
-            let text2 = drugL [comboL[indexPath.row][1]].drugName
+            let text1 = drugL [comboL[indexPath.row][0]].drugIc50.drugName
+            let text2 = drugL [comboL[indexPath.row][1]].drugIc50.drugName
             
             cell.drug1.text = text1
             cell.drug2.text = text2
@@ -250,7 +251,8 @@ extension ViewController: UITextFieldDelegate {
 
 extension ViewController: geneAddedDelegate {
     
-    func drugListAdjusted ( outDrugL: [Drug_C] ){
+    //func drugListAdjusted ( outDrugL: [Drug_C] ){
+        func drugListAdjusted ( outDrugL: [DTRelation_C] ){
         drugL = outDrugL
         drugListTableview.reloadData()
         var theList = [Int]()
@@ -279,12 +281,12 @@ extension ViewController: OptionButtonsDelegate {
     func checkMarkTapped(at index:IndexPath){
         
         let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
-        if (drugL[index.row].allowed == true ) {
-            drugL[index.row].allowed = false
+        if (drugL[index.row].drugIc50.allowed == true ) {
+            drugL[index.row].drugIc50.allowed = false
             cell.checkMark.image = UIImage(named: "tick_red" )
             
         } else {
-            drugL[index.row].allowed = true
+            drugL[index.row].drugIc50.allowed = true
             cell.checkMark.image = UIImage(named: "Check_mark" )
 
         }
