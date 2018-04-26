@@ -60,12 +60,17 @@ var dicGDL3  : [String: [String: [String:Double]]] =
 
 
     [  "BRAF":
-           ["V600E": ["d1":3.14, "d2":2.1] ,
-            "V700E": ["d4":2.0,  "d5":2.5, "d6":5] ,
-            "":      ["d1":2.0,  "d15":2.5, "d16":5] ],
+            ["V600E": ["d1":3.14, "d2":2.1] ,
+             "V700E": ["d4":2.0,  "d5":2.5, "d6":5] ,
+             "":      ["d1":2.0,  "d15":2.5, "d16":5] ],
         
         "EGFR" :
-           ["T790M" : ["d3":2.0, "d5":2.5, "d6":5] ]
+            ["" :      ["d13":2.0, "d15":2.5, "d16":5] ,
+             "T790M" : ["d3":2.0,  "d5":2.5,  "d6":5] ],
+        
+        "MTOR" :
+            ["TOTO"  : ["d13":2.0, "d15":2.5, "d16":5] ,
+             "T790M" : ["d3":2.0,  "d5":2.5,  "d6":5] ]
     ]
 
 
@@ -98,10 +103,33 @@ class geneDrugs {
        // var updDrugL :[DrugIc50_C] = inDrugL
         var updDrugL :[DrugIc50_C] = [DrugIc50_C]()
 
-        if (dicGDL3[theTarget.hugoName] != nil){
+        if let aberL = dicGDL3[theTarget.hugoName] {
+            // the HugoName exist with some aberrations
+            // aberration exist at least with empty string
+            
+            let aberration = theTarget.aberDesc
+            if let drugIc50L =  dicGDL3 [theTarget.hugoName]! [aberration!] {
+                // drugIc50 List exist for that aberration
+                
+                for (drug, ic50) in drugIc50L {
+                    if updDrugL.contains(where: { $0.drugName == drug  }){
+                        //already in there
+                    } else {
+                        print ("Real aberration Added \(drug) \n")
+                        updDrugL.append (DrugIc50_C ( drugId:0, drugName: drug, _Ic50: ic50) )
+                    }
+                }
+            } else {
+                // no DrugIc50 List exist for that aberration
+                print ("No Ic50 for that aberration\n")
+            }
+        }
+        
+        /*
             // if aberDesc != nil but no drugList the force aberDesc to Nil to match nil(aberrations) entries
             
             let drugIc50L =  dicGDL3 [theTarget.hugoName]! [theTarget.aberDesc!]!
+            if (drugIc50L != nil){
             for (drug, ic50) in drugIc50L {
                 if updDrugL.contains(where: { $0.drugName == drug  }){
                     //already in there
@@ -110,10 +138,10 @@ class geneDrugs {
                 }
                 
             }
-            
+            }
         }
         print (updDrugL)
-   /*
+   
             
             if (dicGDL3[theTarget.hugoName])
             var updDrugL :[Drug_C] = inDrugL
