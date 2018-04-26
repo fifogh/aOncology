@@ -28,9 +28,9 @@ class dgRelation_C {
  var dgRelationL = [dgRelation_C]()
 
 */
-var geneL = [String]()
-var drugL = [Drug_C] ()
-var comboL    = [[Int]]()
+var targetL  = [Target_C]()
+var drugL    = [Drug_C] ()
+var comboL   = [[Int]]()
 
 
 
@@ -41,7 +41,7 @@ var noDrugNameL = [String]()
 //var myCombinations = combinations([1,2,3,4], takenBy: 2)
 var myCombo = Combination_C ()
 
-class ViewController: UIViewController , UITableViewDataSource, UITableViewDelegate, UITextFieldDelegate {
+class ViewController: UIViewController , UITableViewDataSource, UITableViewDelegate {
         
   //  var myGeneDrug : geneDrugs = geneDrugs(igene:"EGFR", idrugL: drugl1)
     var myGeneDrug : geneDrugs = geneDrugs(igene:"", idrugL: [""])
@@ -51,6 +51,8 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     @IBOutlet var folderImage: UIImageView!
     
     @IBOutlet var newGeneName: UITextField!
+    @IBOutlet var newAberrationName: UITextField!
+
     @IBOutlet var geneInputTableView: UITableView!
     @IBOutlet var drugListTableview: UITableView!
     
@@ -63,8 +65,12 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     @IBOutlet var combCount: UILabel!
     
     @IBAction func addGeneTaped(_ sender: Any) {
-        self.addGene (gene: newGeneName.text!)
-        newGeneName.text! = ""
+        let target : Target_C = Target_C (id: 0, hugoName: newGeneName.text!, aberration: newAberrationName.text! )
+        if ( target.hugoName.isEmpty == false ) {
+            self.addTarget (target: target)
+            newGeneName.text! = ""
+            newAberrationName.text! = ""
+        }
     }
 
    // func prepare( for segue:UIStoryboardSegue, sender: AnyObject?) {
@@ -111,7 +117,7 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (tableView == geneInputTableView){
-            return geneL.count
+            return targetL.count
         } else if (tableView == drugListTableview){
           //  return drugNameL.count
             return drugL.count
@@ -125,7 +131,7 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
         
         if (tableView == geneInputTableView){
            let cell = tableView.dequeueReusableCell(withIdentifier: "cellGeneId")!
-           let text = geneL[indexPath.row]
+           let text = targetL[indexPath.row].hugoName
            cell.textLabel?.text = text
 
            return cell
@@ -160,8 +166,8 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             if (tableView == geneInputTableView){
-                geneL.remove(at: indexPath.row)
-                subGene ()
+                subGene (target: targetL[indexPath.row])
+                targetL.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .fade)
             }
            
@@ -173,39 +179,49 @@ class ViewController: UIViewController , UITableViewDataSource, UITableViewDeleg
     }
         
   
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("TextField should return method called")
-        textField.resignFirstResponder();
-        self.newGeneName = textField
-        
-        return true;
-    }
     
-    func addGene (gene: String) {
-        if geneL.contains(gene) {
+    func addTarget (target: Target_C) {
+
+        if targetL.contains(where: {$0.hugoName == target.hugoName}) {
             // nothing to do
         }else{
-            geneL.append(gene)
+            targetL.append(target)
             
             self.geneInputTableView.beginUpdates()
-            self.geneInputTableView.insertRows(at: [IndexPath.init(row: geneL.count-1, section: 0)], with: .automatic)
+            self.geneInputTableView.insertRows(at: [IndexPath.init(row: targetL.count-1, section: 0)], with: .automatic)
             self.geneInputTableView.endUpdates()
             
             myGeneDrug.newGeneDelegate  = self
-            myGeneDrug.geneToAdd (theGene: gene,  inDrugL: drugL)
-            geneCount.text = String( geneL.count)
+            myGeneDrug.targetToAdd (theTarget: target,  inDrugL: drugL)
+            geneCount.text = String( targetL.count)
             
          }
     }
     
-    func subGene () {
-        myGeneDrug.genesToRebuild (geneL: geneL)
-        geneCount.text = String( geneL.count)
+    func subGene (target: Target_C) {
+        myGeneDrug.geneToSub   (target: target)
+        geneCount.text = String( targetL.count)
         drugCount.text = String( drugL.count)
         combCount.text = String( comboL.count)
 
     }    
     
+}
+
+
+
+extension ViewController: UITextFieldDelegate {
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        print("TextField should return method called")
+        textField.resignFirstResponder();
+        if (textField == newGeneName) {
+            self.newGeneName = textField
+        } else  {
+            self.newAberrationName = textField
+        }
+        return true;
+    }
 }
 
 extension ViewController: geneAddedDelegate {
@@ -221,7 +237,7 @@ extension ViewController: geneAddedDelegate {
         }
         comboL =  myCombo.combinationsWithoutRepetitionFrom (elements: theList, taking: 2)
         combListTableview.reloadData()
-        geneCount.text = String( geneL.count)
+        geneCount.text = String( targetL.count)
         drugCount.text = String( drugL.count)
         combCount.text = String( comboL.count)
     }

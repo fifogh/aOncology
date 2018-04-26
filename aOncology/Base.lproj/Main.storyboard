@@ -260,6 +260,7 @@
                         <outlet property="geneInputTableView" destination="qdo-uc-IzT" id="OCG-x7-X3Y"/>
                         <outlet property="loggedName" destination="AJq-65-qQR" id="Hsw-xo-yeK"/>
                         <outlet property="loginButton" destination="DFF-pd-aax" id="JpY-Oo-WQU"/>
+                        <outlet property="newAberrationName" destination="J8G-qy-7hS" id="frg-qJ-Zar"/>
                         <outlet property="newGeneName" destination="YE7-cu-Vv2" id="O8q-TA-Tt9"/>
                     </connections>
                 </viewController>
