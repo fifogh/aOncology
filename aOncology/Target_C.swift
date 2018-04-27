@@ -9,7 +9,7 @@
 import Foundation
 
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // DRUG Class
 class Drug_C {
     
@@ -26,7 +26,7 @@ class Drug_C {
 }
 
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // GENE Class
 class Gene_C {
     var id         : Int           // Id instead of Name
@@ -39,7 +39,7 @@ class Gene_C {
 }
 
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // TARGET Class
 class Target_C : Gene_C  {
     
@@ -52,20 +52,21 @@ class Target_C : Gene_C  {
     }
 }
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // TARGET Class
-class TargetMode_C : Target_C  {
+class TargetHitMode_C : Target_C  {
     
     var mode   : String?       // direct/indirect/semi_direct
-    
-    init (id: Int, hugoName: String, aberration: String, mode: String){
+    var Ic50   : Double
+    init (id: Int, hugoName: String, aberration: String, mode: String, Ic50: Double){
         self.mode = mode
+        self.Ic50 = Ic50
         
         super.init (id: id, hugoName: hugoName, aberration: aberration)
     }
 }
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // DrugIc50 Class
 class DrugIc50_C : Drug_C {
     
@@ -79,7 +80,7 @@ class DrugIc50_C : Drug_C {
     }
 }
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // AberDrugL Class
 class AberDrugL_C  {
     
@@ -92,7 +93,7 @@ class AberDrugL_C  {
     }
 }
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // TargetDrug Class
 class TargetDrugs_C  {
     
@@ -105,16 +106,16 @@ class TargetDrugs_C  {
     }
 }
 
-//---------------------------------------------------------
+//------------------------------------------------------------------------------
 // TargetDrug Class
 class DTRelation_C  {
     
-    var drugIc50     : DrugIc50_C          // HugoName of the Gene Description
-    var targetModeL  : [TargetMode_C]!     // list of aberration/ Drug lists
+    var drug        : Drug_C              // HugoName of the Gene Description
+    var targetModeL : [TargetHitMode_C]!  // list of aberration/ Drug lists
     
-    init (drugIc50: DrugIc50_C, targetMode:TargetMode_C){
-        self.drugIc50 = drugIc50
-        self.targetModeL.append (targetMode)
+    init (drug: Drug_C, targetMode:TargetHitMode_C){
+        self.drug        = drug
+        self.targetModeL = [TargetHitMode_C]()
     }
 }
 
