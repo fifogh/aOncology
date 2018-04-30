@@ -8,46 +8,22 @@
 
 import UIKit
 
-// var myGeneDrug :geneDrugs(igene:"", idrugL: "")
-/*
-class dgRelation_C {
-    
-    var geneName : String
-    var drugName : String
-    var dgIc50   : Float
-    
-    init (gene: String, drug:String, Ic50: Float){
- 
- geneName = gene
-        drugName = drug
-        dgIc50   = Ic50
-    }
-    
-    
-}
- var dgRelationL = [dgRelation_C]()
+var drugNumberL = ["1", "2", "3"]
 
-*/
-var targetL  = [Target_C]()
-//var drugL    = [Drug_C] ()
-var drugL    = [DTRelation_C] ()
-var comboL   = [[Int]]()
+var targetL   = [Target_C]()              // Tragets list
+var dtRelL    = [DTRelation_C] ()         // Drug-Target relation list
 
+var combo1L   = [Combination_C]()        // 1 drug Combos
+var combo2L   = [Combination_C]()        // 2 drug Combos
+var combo3L   = [Combination_C]()        // 3 drug Combos
 
-
-var noDrugNameL = [String]()
-
-
-
-//var myCombinations = combinations([1,2,3,4], takenBy: 2)
-var myCombo = Combination_C ()
+var noDrugNameL  = [String]()             // Forbidden drugs list
+var myCombMaker  = CombMaker_C ()         // Combinatory utilitary
 
 class ViewController: UIViewController  {
-        
-  //  var myGeneDrug : geneDrugs = geneDrugs(igene:"EGFR", idrugL: drugl1)
-    var myGeneDrug = geneDrugs ()
     
-    //= geneDrugs(igene:"", idrugL: [""])
+    var comboLen = 1
+    var myGeneDrug = geneDrugs ()
     var loggedIn : Bool!
     
     
@@ -67,7 +43,11 @@ class ViewController: UIViewController  {
     @IBOutlet var geneCount: UILabel!
     @IBOutlet var combCount: UILabel!
     
+    
+    //------------------------------------
+    // a Target has been entered
     @IBAction func addGeneTaped(_ sender: Any) {
+        
         if let inputGene = newGeneName.text {
             
             // the Gene input is not left blank
@@ -82,14 +62,10 @@ class ViewController: UIViewController  {
             
             // create the target object and add it in the list
             let target : Target_C = Target_C (id: 0, hugoName: trimmedGene, aberration: trimmedAber )
-          //  if ( target.hugoName.isEmpty == false ) {
-                self.addTarget (target: target)
-                newGeneName.text! = ""
-                newAberrationName.text! = ""
-           // }
+            self.addTarget (target: target)
+            newGeneName.text! = ""
+            newAberrationName.text! = ""
             
-        //} else {
-            // empty HugoName do NOthing
           }
     }
 
@@ -107,9 +83,9 @@ class ViewController: UIViewController  {
             if let destinationVC = segue.destination as? DrugDetailViewController{
                 let myIndexPath = self.drugListTableview.indexPathForSelectedRow!
                 let row = myIndexPath.row
-                destinationVC.navigationItem.title = drugL[row].drug.drugName
+                destinationVC.navigationItem.title = dtRelL[row].drug.drugName
               //  destinationVC.drugName = drugNameL[row]
-                destinationVC.drugName = drugL[row].drug.drugName
+                destinationVC.drugName = dtRelL[row].drug.drugName
             }
         }
     }
@@ -136,7 +112,8 @@ class ViewController: UIViewController  {
     }
 
     
-    
+    //------------------------------------
+    // a Target has been addeed
     func addTarget (target: Target_C) {
 
         if targetL.contains(where: { ($0.hugoName == target.hugoName) && ($0.aberDesc == target.aberDesc)}) {
@@ -152,36 +129,64 @@ class ViewController: UIViewController  {
             self.targetInputTableView.endUpdates()
             
             myGeneDrug.newGeneDelegate  = self
-            myGeneDrug.targetToAdd (theTarget: target,  inDrugL: drugL)
+            myGeneDrug.targetToAdd (theTarget: target,  inDrugL: dtRelL)
             geneCount.text = String( targetL.count)
             
          }
     }
     
-   // func subGene (target: Target_C) {
-    func subGene () {
-
-        //myGeneDrug.geneToSub   (target: target, inTargetL: targetL )
+    //------------------------------------
+    // a Target has been removed
+    func subTarget  () {
+        
         myGeneDrug.rebuildAll   ( inTargetL: targetL )
+        updateCounterDisplay()
+    }
 
-        geneCount.text = String( targetL.count)
-        drugCount.text = String( drugL.count)
-        combCount.text = String( comboL.count)
-
-    }    
     
+    
+    //------------------------------------
+    // return number of elts in each combo
+    func comboCount () -> Int {
+        var countNb = 0;
+        
+        if (comboLen == 1) {
+            countNb = combo1L.count
+            
+        } else if (comboLen == 2) {
+            countNb = combo2L.count
+
+        } else {
+            countNb = combo3L.count
+        }
+        return countNb
+    }
+
+    
+    
+    //------------------------------------
+    // Update all counters text for display
+    func updateCounterDisplay() {
+        geneCount.text = String( targetL.count)
+        drugCount.text = String( dtRelL.count )
+        combCount.text = String( comboCount() )
+    }
 }
 
+
+//------------------------------------------------------------------------
+// TABLEVIEW DELEGATE
 extension ViewController: UITableViewDataSource, UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if (tableView == targetInputTableView){
             return targetL.count
+            
         } else if (tableView == drugListTableview){
-            //  return drugNameL.count
-            return drugL.count
+            return dtRelL.count
+            
         } else {
-            return comboL.count
+            return self.comboCount ()
         }
     }
     
@@ -200,12 +205,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             
         } else if (tableView == drugListTableview){
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellDrugId") as! DrugTableViewCell
-            let text = drugL[indexPath.row].drug.drugName
+            let text = dtRelL[indexPath.row].drug.drugName
             cell.drugName?.text = text
             cell.delegate = self
             cell.indexPath = indexPath
             
-            if (drugL[indexPath.row].drug.allowed == false ) {
+            if (dtRelL[indexPath.row].drug.allowed == false ) {
                 cell.checkMark.image = UIImage(named: "tick_red" )
             } else {
                 cell.checkMark.image = UIImage(named: "Check_mark" )
@@ -214,14 +219,46 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             return cell
             
         } else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "cellCombId") as! combTableViewCell
-            let text1 = drugL [comboL[indexPath.row][0]].drug.drugName
-            let text2 = drugL [comboL[indexPath.row][1]].drug.drugName
+            //Combo
             
-            cell.drug1.text = text1
-            cell.drug2.text = text2
-            return cell
+            let formatter = NumberFormatter()
+            formatter.maximumFractionDigits = 1
             
+            if (self.comboLen == 1 ){
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb1Id") as! Comb1TableViewCell
+                let drug1Name = combo1L[indexPath.row].dtRelL[0].drug.drugName
+                let score     = formatter.string (from: combo1L[indexPath.row].strengthScore as NSNumber )
+                cell.drug1.text = drug1Name
+                cell.score.text = score
+                return cell
+                
+            } else if (self.comboLen == 2) {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb2Id") as! Comb2TableViewCell
+                let drug1Name = combo2L[indexPath.row].dtRelL[0].drug.drugName
+                let drug2Name = combo2L[indexPath.row].dtRelL[1].drug.drugName
+                
+                let score = formatter.string (from: combo2L[indexPath.row].strengthScore as NSNumber )
+                cell.drug1.text = drug1Name
+                cell.drug2.text = drug2Name
+                cell.score.text = score
+                return cell
+                
+            } else {
+                
+                let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb3Id") as! Comb3TableViewCell
+                let drug1Name = combo3L[indexPath.row].dtRelL[0].drug.drugName
+                let drug2Name = combo3L[indexPath.row].dtRelL[1].drug.drugName
+                let drug3Name = combo3L[indexPath.row].dtRelL[2].drug.drugName
+                
+                let score = formatter.string (from: combo3L[indexPath.row].strengthScore as NSNumber )
+                cell.drug1.text = drug1Name
+                cell.drug2.text = drug2Name
+                cell.drug3.text = drug3Name
+                cell.score.text = score
+                return cell
+           }
         }
     }
     
@@ -230,11 +267,9 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             if (tableView == targetInputTableView){
                 targetL.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .fade)
-               // subGene (target: targetL[indexPath.row])
-                subGene ()
+                self.subTarget ()
 
             }
-            
         }
     }
     
@@ -244,9 +279,27 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
     
 }
 
+//------------------------------------------------------------------------
+// OPTION BUTTON (TABLEVIEW ) DELEGATE
+extension ViewController: OptionButtonsDelegate {
+    func checkMarkTapped(at index:IndexPath){
+        
+        let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
+        if (dtRelL[index.row].drug.allowed == true ) {
+            dtRelL[index.row].drug.allowed = false
+            cell.checkMark.image = UIImage(named: "tick_red" )
+            
+        } else {
+            dtRelL[index.row].drug.allowed = true
+            cell.checkMark.image = UIImage(named: "Check_mark" )
+            
+        }
+    }
+}
 
 
-
+//------------------------------------------------------------------------
+// TEXTFIELD DELEGATE
 extension ViewController: UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -261,46 +314,110 @@ extension ViewController: UITextFieldDelegate {
     }
 }
 
+
+//------------------------------------------------------------------------
+// PICKER DELEGATE
+extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+       return 3
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        comboLen = row + 1
+
+        combListTableview.reloadData()
+        updateCounterDisplay()
+
+        return (drugNumberL [row ])
+    }
+/*
+  //  func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        func pickerView( didSelectRow row: Int, inComponent component: Int) {
+        comboLen = row + 1
+        print ("comboLen \(comboLen)")
+
+        combListTableview.reloadData()
+        updateCounterDisplay()
+    }
+ */
+}
+
+//------------------------------------------------------------------------
+// GENE ADDED DELEGATE
 extension ViewController: geneAddedDelegate {
     
     //func drugListAdjusted ( outDrugL: [Drug_C] ){
-        func drugListAdjusted ( outDrugL: [DTRelation_C] ){
-        drugL = outDrugL
+    func drugListAdjusted ( outDrugL: [DTRelation_C] ){
+        
+         // free all previous stuff
+        dtRelL.removeAll()
+        combo1L.removeAll()
+        combo2L.removeAll()
+        combo3L.removeAll()
+        
+        dtRelL = outDrugL
         drugListTableview.reloadData()
-        var theList = [Int]()
-        var i:Int = 0
-        for _ in drugL {
-            theList.append(i)
-            i=i+1
+        
+        // Create the list of combinations 1, 2 and 3 drugs
+        var combos : [[DTRelation_C]]
+        var dtRelLxx = [DTRelation_C] ()
+        
+        
+        //Take the non forbidden Drugs Only
+        for dt in dtRelL{
+            if (dt.drug.allowed == true) {
+                dtRelLxx.append(dt)
+            }
         }
-        comboL =  myCombo.combinationsWithoutRepetitionFrom (elements: theList, taking: 2)
+        
+        combos =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 1)
+        for elem in combos{
+            let combElem = Combination_C (dtRelList: elem )
+            combo1L.append ( combElem )
+        }
+        combo1L.sort(by: { $0.strengthScore > $1.strengthScore })
+        
+        combos =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 2)
+        for elem in combos{
+            let combElem = Combination_C (dtRelList: elem )
+            combo2L.append ( combElem )
+        }
+        combo2L.sort(by: { $0.strengthScore > $1.strengthScore })
+        
+        combos =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 3)
+        for elem in combos{
+            let combElem = Combination_C (dtRelList: elem )
+            combo3L.append ( combElem )
+        }
+        combo3L.sort(by: { $0.strengthScore > $1.strengthScore })
+        
+        dtRelLxx.removeAll()
         combListTableview.reloadData()
-        geneCount.text = String( targetL.count)
-        drugCount.text = String( drugL.count)
-        combCount.text = String( comboL.count)
+        updateCounterDisplay()
     }
+    
+  
 }
 
+//------------------------------------------------------------------------
+// LOGIN SCREEN DELEGATE
 extension ViewController: loginScreenDelegate {
     func didLogin (hasLogged: Bool, name :String){
         loggedName.text = name
         loggedIn = hasLogged
-        
-    }
-}
-
-extension ViewController: OptionButtonsDelegate {
-    func checkMarkTapped(at index:IndexPath){
-        
-        let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
-        if (drugL[index.row].drug.allowed == true ) {
-            drugL[index.row].drug.allowed = false
-            cell.checkMark.image = UIImage(named: "tick_red" )
-            
-        } else {
-            drugL[index.row].drug.allowed = true
-            cell.checkMark.image = UIImage(named: "Check_mark" )
-
+        if (loggedIn == true ){
+            loginButton.setImage(UIImage(named: "rounded doctor"), for: .normal)
+        }else{
+            loginButton.setImage(UIImage(named: "person-generic"), for: .normal)
         }
+        
     }
 }
+
+
+

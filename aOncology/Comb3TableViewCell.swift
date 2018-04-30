@@ -1,18 +1,20 @@
 //
-//  combTableViewCell.swift
+//  Comb3TableViewCell.swift
 //  aOncology
 //
-//  Created by Philippe-Faurie on 4/21/18.
+//  Created by Philippe-Faurie on 4/28/18.
 //  Copyright © 2018 Philippe-Faurie. All rights reserved.
 //
 
 import UIKit
 
-class combTableViewCell: UITableViewCell {
+class Comb3TableViewCell: UITableViewCell {
 
     @IBOutlet var drug1: UILabel!
     @IBOutlet var drug2: UILabel!
+    @IBOutlet var drug3: UILabel!
     
+    @IBOutlet var score: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

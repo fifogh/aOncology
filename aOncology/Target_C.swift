@@ -52,19 +52,6 @@ class Target_C : Gene_C  {
     }
 }
 
-//------------------------------------------------------------------------------
-// TARGET Class
-class TargetHitMode_C : Target_C  {
-    
-    var mode   : String?       // direct/indirect/semi_direct
-    var Ic50   : Double
-    init (id: Int, hugoName: String, aberration: String, mode: String, Ic50: Double){
-        self.mode = mode
-        self.Ic50 = Ic50
-        
-        super.init (id: id, hugoName: hugoName, aberration: aberration)
-    }
-}
 
 //------------------------------------------------------------------------------
 // DrugIc50 Class
@@ -106,18 +93,6 @@ class TargetDrugs_C  {
     }
 }
 
-//------------------------------------------------------------------------------
-// TargetDrug Class
-class DTRelation_C  {
-    
-    var drug        : Drug_C              // HugoName of the Gene Description
-    var targetModeL : [TargetHitMode_C]!  // list of aberration/ Drug lists
-    
-    init (drug: Drug_C, targetMode:TargetHitMode_C){
-        self.drug        = drug
-        self.targetModeL = [TargetHitMode_C]()
-    }
-}
 
 
- var targetDrugsL = [TargetDrugs_C]()
+// var targetDrugsL = [TargetDrugs_C]()

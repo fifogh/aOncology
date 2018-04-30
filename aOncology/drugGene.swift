@@ -23,8 +23,10 @@ var dicGDL2  : [String: [String:Double]] =
     [  "BRAF": ["d1":3.14, "d2":2.1],
        "EGFR": ["d4":2.0, "d5":2.5, "d6":5] ]
 
-*/
-var dicGDL3  : [String: [String: [String:Double]]] =
+
+
+
+var dicGDL3 : [String: [String: [String:Double]]] =
 
 
     [  "BRAF":
@@ -41,6 +43,9 @@ var dicGDL3  : [String: [String: [String:Double]]] =
              "T790M" : ["d3":2.0,  "d5":2.5,  "d6":5] ]
     ]
 
+*/
+
+var dicGDL3  = dicDTRelL
 
 
 //------------------------------------------------------------------------------
@@ -87,12 +92,17 @@ class geneDrugs {
         if ( dicGDL3[theTarget.hugoName] != nil ) {
             // the HugoName exist with some aberrations
             // aberration exist at least with empty string
-            
             let aberration = theTarget.aberDesc
-            if let drugIc50L =  dicGDL3 [theTarget.hugoName]! [aberration!] {
-                
+            var drugIc50L =  dicGDL3 [theTarget.hugoName]! [aberration!]
+
+            // if let drugIc50L =  dicGDL3 [theTarget.hugoName]! [aberration!] {
+            if (drugIc50L == nil) {
+                drugIc50L =  dicGDL3 [theTarget.hugoName]! [""]
+            }
+            if (true){
+
                 // drugIc50 List exist for that aberration
-                for (drug, ic50) in drugIc50L {
+                for (drug, ic50) in drugIc50L! {
                     
                     let index = updDrugL.index (where: { $0.drug.drugName == drug  })
                     if (index != nil) {
@@ -105,18 +115,23 @@ class geneDrugs {
                             
                         } else {
                             
-                            // add that target in in List for taht drug
+                            // add that target in the list of targets for that drug
                             targetModeL.append (TargetHitMode_C (id: 0, hugoName: theTarget.hugoName,
                                                                  aberration: theTarget.aberDesc!,mode: "direct", Ic50: ic50 ))
                         }
                         
                     } else {
                         
-                        // New relation target Added
-                        let newDrugIc50 = DrugIc50_C ( drugId: 0, drugName : drug , _Ic50: ic50 )
+                        //  create a new Drug-Target relation and add it
+                        let newDrug = Drug_C ( drugId: 0, drugName : drug)
                         let newTargetMode = TargetHitMode_C (id: 0, hugoName: theTarget.hugoName,
                                                              aberration: theTarget.aberDesc!, mode: "direct", Ic50: ic50 )
-                        updDrugL.append (DTRelation_C ( drug: newDrugIc50, targetMode:newTargetMode ))
+                
+                        
+                        let newDTRelation = DTRelation_C ( drug: newDrug )
+                        newDTRelation.targetModeL.append ( newTargetMode )
+
+                        updDrugL.append ( newDTRelation )
                     }
                 }//for
             }
