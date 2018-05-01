@@ -211,9 +211,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             cell.indexPath = indexPath
             
             if (dtRelL[indexPath.row].drug.allowed == false ) {
-                cell.checkMark.image = UIImage(named: "tick_red" )
+                cell.checkMark.alpha = 0.3
+                cell.drugName.textColor = UIColor.lightGray
+                
             } else {
-                cell.checkMark.image = UIImage(named: "Check_mark" )
+                cell.checkMark.alpha = 1.0
+                cell.drugName.textColor = UIColor.black
             }
             
             return cell
@@ -273,8 +276,8 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
         }
     }
     
-    private func tableView(_ tableView: UITableView, didSelectRowAt indexPath: NSIndexPath) {
-        print ("selected row")
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath , animated: true)
     }
     
 }
@@ -284,16 +287,26 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
 extension ViewController: OptionButtonsDelegate {
     func checkMarkTapped(at index:IndexPath){
         
+        
+        // a drug has been added or removed
+        
         let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
+        let label = cell.drugName
+
         if (dtRelL[index.row].drug.allowed == true ) {
             dtRelL[index.row].drug.allowed = false
-            cell.checkMark.image = UIImage(named: "tick_red" )
+            label!.textColor = UIColor.lightGray
+            cell.checkMark.alpha = 0.3
             
         } else {
             dtRelL[index.row].drug.allowed = true
-            cell.checkMark.image = UIImage(named: "Check_mark" )
-            
+            label!.textColor = UIColor.black
+            cell.checkMark.alpha = 1.0
         }
+        
+        // rebuild now the combos
+        self.buildAllCombos ()
+        self.updateCounterDisplay()
     }
 }
 
@@ -331,40 +344,30 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
         comboLen = row + 1
 
         combListTableview.reloadData()
+        
+        // no need to rebuild combos
+        // they all exist but need to adjust counters
         updateCounterDisplay()
 
         return (drugNumberL [row ])
     }
-/*
-  //  func pickerView(pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        func pickerView( didSelectRow row: Int, inComponent component: Int) {
-        comboLen = row + 1
-        print ("comboLen \(comboLen)")
 
-        combListTableview.reloadData()
-        updateCounterDisplay()
-    }
- */
 }
 
 //------------------------------------------------------------------------
 // GENE ADDED DELEGATE
 extension ViewController: geneAddedDelegate {
     
-    //func drugListAdjusted ( outDrugL: [Drug_C] ){
-    func drugListAdjusted ( outDrugL: [DTRelation_C] ){
+    func buildAllCombos () {
         
-         // free all previous stuff
-        dtRelL.removeAll()
+        //delete all previous
         combo1L.removeAll()
         combo2L.removeAll()
         combo3L.removeAll()
         
-        dtRelL = outDrugL
-        drugListTableview.reloadData()
         
         // Create the list of combinations 1, 2 and 3 drugs
-        var combos : [[DTRelation_C]]
+        var combosxx : [[DTRelation_C]]
         var dtRelLxx = [DTRelation_C] ()
         
         
@@ -375,33 +378,49 @@ extension ViewController: geneAddedDelegate {
             }
         }
         
-        combos =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 1)
-        for elem in combos{
+        combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 1)
+        for elem in combosxx{
             let combElem = Combination_C (dtRelList: elem )
             combo1L.append ( combElem )
         }
         combo1L.sort(by: { $0.strengthScore > $1.strengthScore })
         
-        combos =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 2)
-        for elem in combos{
+        combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 2)
+        for elem in combosxx{
             let combElem = Combination_C (dtRelList: elem )
             combo2L.append ( combElem )
         }
         combo2L.sort(by: { $0.strengthScore > $1.strengthScore })
         
-        combos =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 3)
-        for elem in combos{
+        combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 3)
+        for elem in combosxx{
             let combElem = Combination_C (dtRelList: elem )
             combo3L.append ( combElem )
         }
         combo3L.sort(by: { $0.strengthScore > $1.strengthScore })
         
         dtRelLxx.removeAll()
+        
         combListTableview.reloadData()
-        updateCounterDisplay()
+        
     }
     
-  
+    //func drugListAdjusted ( outDrugL: [Drug_C] ){
+    func drugListAdjusted ( outDrugL: [DTRelation_C] ){
+        
+        // free previous Drug Target Relation list
+        // and take teh new one
+        dtRelL.removeAll()
+        dtRelL = outDrugL
+        drugListTableview.reloadData()
+        
+        // generate all combos
+        // and update counters
+        self.buildAllCombos ()
+        self.updateCounterDisplay()
+
+    }
+
 }
 
 //------------------------------------------------------------------------
