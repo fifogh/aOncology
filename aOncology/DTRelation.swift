@@ -13,20 +13,23 @@ import Foundation
 // TARGET Class
 class TargetHitMode_C : Target_C  {
     
-    var mode         : String?       // direct/indirect/semi_direct
-    var markerType   : String?       // genomic, protein, rna
+    var mode         : SubsMode            // direct/indirect/semi_direct
+    var markerType   : String?             // genomic, protein, rna
     
-    var Ic50     : Double
-    var hitScore : Double
+    var Ic50         : Double              // Associated with a drug
+    var hitScore     : Double              // Calculated
  
+    var targetSubsL  : [TargetHitMode_C]   // List of targets substitution
     
-    init (id: Int, hugoName: String, aberration: String, mode: String, Ic50: Double){
+    init (id: Int, hugoName: String, aberration: String, mode: SubsMode, Ic50: Double){
         
 
-        self.mode       = mode
-        self.Ic50       = Ic50
-        self.markerType = "genomic"
-        self.hitScore   = 0
+        self.mode        = mode
+        self.Ic50        = Ic50
+        self.markerType  = "genomic"
+        self.hitScore    = 0
+        self.targetSubsL = [TargetHitMode_C]()
+        
 
         super.init (id: id, hugoName: hugoName, aberration: aberration)
         
@@ -66,7 +69,7 @@ class TargetHitMode_C : Target_C  {
         // Adaptations
         
         // Only get 75% of score for Pathways ( indirect )
-        if (mode == "indirect") {
+        if (mode == SubsMode.indirect) {
             hitScore = 3*hitScore/4;
         }
         

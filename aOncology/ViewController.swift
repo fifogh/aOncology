@@ -8,6 +8,8 @@
 
 import UIKit
 
+enum CalcMode {case auto, manual}
+
 var drugNumberL = ["1", "2", "3"]
 
 var targetL   = [Target_C]()              // Tragets list
@@ -25,6 +27,7 @@ class ViewController: UIViewController  {
     var comboLen = 1
     var myGeneDrug = geneDrugs ()
     var loggedIn : Bool!
+    var calcMode = CalcMode.auto
     
     
     @IBOutlet var folderImage: UIImageView!
@@ -42,32 +45,32 @@ class ViewController: UIViewController  {
     @IBOutlet var drugCount: UILabel!
     @IBOutlet var geneCount: UILabel!
     @IBOutlet var combCount: UILabel!
-    
-    
+  
     //------------------------------------
-    // a Target has been entered
-    @IBAction func addGeneTaped(_ sender: Any) {
+    // The Mode Auto/Manual has changed
+    @IBAction func autoManualChange(_ sender: UISegmentedControl) {
         
-        if let inputGene = newGeneName.text {
-            
-            // the Gene input is not left blank
-            // remove leading and trailing space
-            let trimmedGene  = inputGene.trimmingCharacters(in: .whitespaces)
-            var trimmedAber : String
-            if let inputAber = newAberrationName.text {
-                trimmedAber = inputAber.trimmingCharacters(in: .whitespaces)
-            } else {
-                trimmedAber = ""
+        let index = sender.selectedSegmentIndex
+        if (index == 0) {
+            //Automatic mode
+            calcMode = CalcMode.auto
+            for t in dtRelL{
+                t.drug.allowed = true
             }
             
-            // create the target object and add it in the list
-            let target : Target_C = Target_C (id: 0, hugoName: trimmedGene, aberration: trimmedAber )
-            self.addTarget (target: target)
-            newGeneName.text! = ""
-            newAberrationName.text! = ""
-            
-          }
+        } else {
+            // Manual mode
+            calcMode = CalcMode.manual
+            for t in dtRelL{
+                t.drug.allowed = false
+            }
+        }
+        
+        drugListTableview.reloadData()
+        buildAllCombos ()
+        updateCounterDisplay()
     }
+    
 
    // func prepare( for segue:UIStoryboardSegue, sender: AnyObject?) {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -110,6 +113,32 @@ class ViewController: UIViewController  {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    
+    //------------------------------------
+    // a Target has been entered
+    @IBAction func addGeneTaped(_ sender: Any) {
+        
+        if let inputGene = newGeneName.text {
+            
+            // the Gene input is not left blank
+            // remove leading and trailing space
+            let trimmedGene  = inputGene.trimmingCharacters(in: .whitespaces)
+            var trimmedAber : String
+            if let inputAber = newAberrationName.text {
+                trimmedAber = inputAber.trimmingCharacters(in: .whitespaces)
+            } else {
+                trimmedAber = ""
+            }
+            
+            // create the target object and add it in the list
+            let target : Target_C = Target_C (id: 0, hugoName: trimmedGene, aberration: trimmedAber )
+            self.addTarget (target: target)
+            newGeneName.text! = ""
+            newAberrationName.text! = ""
+            
+        }
+    }
 
     
     //------------------------------------
@@ -128,8 +157,8 @@ class ViewController: UIViewController  {
             self.targetInputTableView.insertRows(at: [IndexPath.init(row: targetL.count-1, section: 0)], with: .automatic)
             self.targetInputTableView.endUpdates()
             
-            myGeneDrug.newGeneDelegate  = self
-            myGeneDrug.targetToAdd (theTarget: target,  inDrugL: dtRelL)
+            myGeneDrug.newGeneConfigDelegate  = self
+            myGeneDrug.targetToAdd (theTarget: target,  inDrugL: dtRelL, allowed: calcMode == CalcMode.auto )
             geneCount.text = String( targetL.count)
             
          }
@@ -139,7 +168,7 @@ class ViewController: UIViewController  {
     // a Target has been removed
     func subTarget  () {
         
-        myGeneDrug.rebuildAll   ( inTargetL: targetL )
+        myGeneDrug.rebuildAll   ( inTargetL: targetL, inDTRelL: dtRelL, allowed: calcMode == CalcMode.auto )
         updateCounterDisplay()
     }
 
@@ -356,7 +385,7 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
 
 //------------------------------------------------------------------------
 // GENE ADDED DELEGATE
-extension ViewController: geneAddedDelegate {
+extension ViewController: targetChangeDelegate {
     
     func buildAllCombos () {
         
@@ -405,7 +434,6 @@ extension ViewController: geneAddedDelegate {
         
     }
     
-    //func drugListAdjusted ( outDrugL: [Drug_C] ){
     func drugListAdjusted ( outDrugL: [DTRelation_C] ){
         
         // free previous Drug Target Relation list

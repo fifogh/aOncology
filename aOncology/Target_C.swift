@@ -9,6 +9,7 @@
 import Foundation
 
 
+
 //------------------------------------------------------------------------------
 // DRUG Class
 class Drug_C {
@@ -18,10 +19,10 @@ class Drug_C {
     var allowed  : Bool      // user selection yes/no
     
     
-    init (drugId: Int, drugName: String){
+    init (drugId: Int, drugName: String, allowed: Bool){
         self.id       = drugId
         self.drugName = drugName
-        allowed  = true
+        self.allowed  = allowed
     }
 }
 
@@ -52,6 +53,21 @@ class Target_C : Gene_C  {
     }
 }
 
+//------------------------------------------------------------------------------
+// TARGET Substitution
+class TargetSubs_C : Gene_C  {
+    
+    var subsName   : String
+    var mode       : Int
+    
+    init (id: Int, hugoName: String, subsName: String, mode: Int ){
+       
+        self.subsName = subsName
+        self.mode     = mode
+        super.init(geneId: id, hugoName: hugoName)
+    }
+}
+
 
 //------------------------------------------------------------------------------
 // DrugIc50 Class
@@ -59,10 +75,10 @@ class DrugIc50_C : Drug_C {
     
     var Ic50    : Double    // Ic50 value
     
-    init ( drugId: Int, drugName : String, _Ic50: Double){
+    init ( drugId: Int, drugName : String, allowed: Bool, _Ic50: Double){
         self.Ic50 = _Ic50
 
-        super.init ( drugId: drugId, drugName: drugName)
+        super.init ( drugId: drugId, drugName: drugName, allowed: allowed)
 
     }
 }

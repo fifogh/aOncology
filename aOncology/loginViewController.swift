@@ -85,6 +85,16 @@ class loginViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    @IBAction func passwdTyping(_ sender: UITextField) {
+        
+        let passwd = sender.text
+        if (passwd != nil) {
+            if (sender.text!.count > 4) {
+                self.checkLoginButtonEnable()
+            }
+        }
+    }
+    
     func lookAtEntry (_ textField: UITextField){
         if (textField == username ) {
             self.username.text = textField.text
@@ -93,7 +103,7 @@ class loginViewController: UIViewController, UITextFieldDelegate {
         }
         self.checkLoginButtonEnable()
     }
-   
+   /*
     func textFieldDidBeginEditing(_ textField: UITextField) {
         self.lookAtEntry(textField)
     }
@@ -108,7 +118,7 @@ class loginViewController: UIViewController, UITextFieldDelegate {
         textField.resignFirstResponder();
         return true
     }
-
+*/
     
     /*
     // MARK: - Navigation

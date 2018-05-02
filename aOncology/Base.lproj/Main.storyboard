@@ -146,6 +146,9 @@
                                     <segment title="Manual"/>
                                 </segments>
                                 <color key="tintColor" red="0.23684489727020264" green="0.50245034694671631" blue="0.75821620225906372" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <connections>
+                                    <action selector="autoManualChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="4D8-hg-uCQ"/>
+                                </connections>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="contactAdd" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Ou-E1-rnU">
                                 <rect key="frame" x="255" y="244" width="22" height="22"/>
@@ -503,6 +506,7 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="27"/>
                                         <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
                                         <connections>
+                                            <action selector="passwdTyping:" destination="n3w-p4-GR7" eventType="editingChanged" id="MJK-3k-v4F"/>
                                             <outlet property="delegate" destination="n3w-p4-GR7" id="iSK-GW-lkX"/>
                                         </connections>
                                     </textField>
