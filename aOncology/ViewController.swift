@@ -90,6 +90,17 @@ class ViewController: UIViewController  {
               //  destinationVC.drugName = drugNameL[row]
                 destinationVC.drugName = dtRelL[row].drug.drugName
             }
+            
+        } else if segue.identifier == "toComboDetail" {
+            if let destinationVC = segue.destination as? ComboDetailViewController{
+                let myIndexPath = self.combListTableview.indexPathForSelectedRow!
+                
+                destinationVC.row = myIndexPath.row
+                destinationVC.drugCount = self.comboLen
+                
+                destinationVC.navigationItem.title = "Combination Detail"
+
+            }
         }
     }
     

@@ -8,19 +8,21 @@
 
 import Foundation
 
-enum SubsMode {case direct, semidirect, indirect }
 
+
+
+
+//------------------------------------------------------------------------------
+// PROTOCOL -
+//           the DTRelList is ready
 
 protocol targetChangeDelegate{
     func drugListAdjusted (outDrugL: [DTRelation_C])
 }
 
-var dicGDL3  = dicDTRelL
-
 
 //------------------------------------------------------------------------------
-// GeneDRUG Class
-
+// CLASS geneDRUG
 class geneDrugs {
     
     var newGeneConfigDelegate : targetChangeDelegate!
@@ -30,7 +32,9 @@ class geneDrugs {
     
      func targetToAdd (theTarget: Target_C,  inDrugL: [DTRelation_C], allowed: Bool) {
 
-        var updDTRelL = checkAndAdd (theTarget: theTarget,  inDTRelL: inDrugL, allowed: allowed)
+        var updDTRelL = self.checkAndAdd   (theTarget: theTarget, inDTRelL: inDrugL,   allowed: allowed)
+            updDTRelL = self.targetSubsAdd (theTarget: theTarget, inDTRelL: updDTRelL, allowed: allowed)
+        
         updDTRelL.sort(by: { $0.drug.drugName < $1.drug.drugName })
         newGeneConfigDelegate.drugListAdjusted (outDrugL : updDTRelL )
     }
@@ -44,9 +48,9 @@ class geneDrugs {
  
         var newDTRelL = [DTRelation_C]()
         for target in inTargetL {
-            newDTRelL = self.checkAndAdd (theTarget: target,  inDTRelL: newDTRelL, allowed: allowed)
-            targetToAdd (theTarget: target,  inDrugL: newDTRelL, allowed: allowed)
-         }
+            newDTRelL = self.checkAndAdd   (theTarget: target, inDTRelL: newDTRelL, allowed: allowed)
+            newDTRelL = self.targetSubsAdd (theTarget: target, inDTRelL: newDTRelL, allowed: allowed)
+          }
         
         // retrieve and reassign the drug.allowed field 
         for t in newDTRelL {
@@ -60,63 +64,141 @@ class geneDrugs {
         newGeneConfigDelegate.drugListAdjusted (outDrugL : newDTRelL )
     }
 
+    //--------------------------------------------------------------------------
+    // Does all the job of adding a drug Target relation in the DTRelation List
+    
+   
+    
+    func targetSubsAdd (theTarget: Target_C,  inDTRelL: [DTRelation_C], allowed: Bool) -> [DTRelation_C] {
+        var updDTRelL  = inDTRelL
+        var theTargetHit : TargetHit_C
+        
+        if ( dicTSubsL [theTarget.hugoName] != nil) {
+            
+            // Target Substitution exists
+            // for all targets inteh list add them as substitution Targets
+            let targetSubsL = dicTSubsL [theTarget.hugoName]!
+            
+            for (theTargetSubs, mode ) in targetSubsL {
+                if ( dicDTRelL[theTargetSubs] != nil ) {
+                    // a Target Substitution exist
+                    // go through all the drugs associated to it
+                    
+                    let drugIc50L =  dicDTRelL [theTargetSubs]! [""]
+                    for (drug, ic50) in drugIc50L! {
+                        if let index = updDTRelL.index (where: { $0.drug.drugName == drug  }) {
+                            // a drug exists for that target Subs
+                            // if the Target is already in the list, also add teh subsitution now
+                            
+                            var targetHitL = updDTRelL [index].targetHitL!
+                            if   let pos = targetHitL.index( where: {  (($0.hugoName == theTarget.hugoName) && ($0.aberDesc! == "" ))  }) {
+                                
+                                // the target exists.. adds the substitution
+                                let targetSubs = TargetHit_C (id: 0,   hugoName: theTargetSubs, aberration: "",
+                                                               mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect, Ic50: ic50 )
+                                theTargetHit = targetHitL[pos]
+                                theTargetHit.targetSubsL.append(targetSubs)
+                                    
+                            } else {
+                                // add that thetarget an the Subs in the list of targets for that drug
+                                theTargetHit = TargetHit_C (id: 0,   hugoName: theTarget.hugoName, aberration: "",
+                                                            mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect )
+                                let targetSubs = TargetHit_C (id: 0,   hugoName: theTargetSubs, aberration: "",
+                                                             mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect,Ic50: ic50 )
+                                theTargetHit.targetSubsL.append(targetSubs)
+                                
+                                targetHitL.append (theTargetHit)
+                            }
+                            
+                           theTargetHit.calcSubsHitScore()
+                            
+                        } else {
+                            // add teh drug. teh target and teh substitution
+                            
+                            // Drug does not exist yet
+                            // Create a new Drug-Target relation and add it to teh list
+                            let newDrug = Drug_C ( drugId: 0, drugName : drug, allowed: allowed )
+                            let newDTRelation = DTRelation_C ( drug: newDrug )
+                            
+                            theTargetHit = TargetHit_C (id: 0, hugoName: theTarget.hugoName,
+                                                        aberration: theTarget.aberDesc!, mode: SubsMode.direct )
+                            let targetSubs = TargetHit_C (id: 0,   hugoName: theTargetSubs, aberration: "",
+                                                          mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect, Ic50: ic50 )
+                            
+                            theTargetHit.targetSubsL.append(targetSubs)
+                            theTargetHit.calcSubsHitScore()
+                            
+                            newDTRelation.targetHitL.append ( theTargetHit )
+                            
+                            updDTRelL.append ( newDTRelation )
+                            
+                        }
+                    
+                    //DrugsIC50 List exist for that Substitution
+                    
+                } //for
+                    
+                
+            }
+                
+        } // for all TargetSubs
+    }//Substitutions exists
+        
+        
+        return (updDTRelL)
+    }
     
     //--------------------------------------------------------------------------
-    // Does all the job of adding a drug in the list
+    // Does all the job of adding a drug Target relation in the DTRelation List
 
     func checkAndAdd (theTarget: Target_C,  inDTRelL: [DTRelation_C], allowed: Bool) -> [DTRelation_C] {
         var updDTRelL  = inDTRelL
         
-        var theTargetMode : TargetHitMode_C?
+        var theTargetHit : TargetHit_C
         
-        if ( dicGDL3[theTarget.hugoName] != nil ) {
+        if ( dicDTRelL[theTarget.hugoName] != nil ) {
             // The HugoName exist
-            // note: an aberration exist at least with empty string
-            // otherwise the hugo name is ot even present
+            // an aberration exist at least with empty string otherwise the hugo name is not even present
+            // so if no Drug is found for that particular aberration look for the list with no aberration
             
             let aberration = theTarget.aberDesc
-            var drugIc50L =  dicGDL3 [theTarget.hugoName]! [aberration!]
-
-            // if no Drug for that particular aberration
-            // look for the list with no aberration
+            var drugIc50L =  dicDTRelL [theTarget.hugoName]! [aberration!]
             if (drugIc50L == nil) {
-                drugIc50L =  dicGDL3 [theTarget.hugoName]! [""]
+                drugIc50L =  dicDTRelL [theTarget.hugoName]! [""]
             }
  
-            // Go through the drugIc50 List
-            // there is at least one element
+            // for each drug of the DrugIC50list
+            // if the drug  already exist in the list append the new TargetHit (if not already there)
+            // if the drug does not exist in the list create the drug and the first Target attached to it
+            
             for (drug, ic50) in drugIc50L! {
-                
-                // Check if we already know that drug
-                let index = updDTRelL.index (where: { $0.drug.drugName == drug  })
-                if (index != nil) {
-                        
-                    // Drug already exist. add the target in Target List
-                    var targetModeL = updDTRelL [index!].targetModeL!
-                    if targetModeL.contains (where: {($0.hugoName == theTarget.hugoName)&&($0.aberDesc == theTarget.aberDesc ) }) {
-                        
-                       let pos  = targetModeL.index( where: {  (($0.hugoName == theTarget.hugoName) && ($0.aberDesc == theTarget.aberDesc ))  })
-                        // target already in here for that drug
-                        theTargetMode = targetModeL[pos!]
+                if let index = updDTRelL.index (where: { $0.drug.drugName == drug  }) {
+ 
+                    // Drug already exist.
+                    // Add theTarget in Target List if not yet in
+                    var targetHitL = updDTRelL [index].targetHitL!
+                    if   let pos  = targetHitL.index( where: {  (($0.hugoName == theTarget.hugoName) && ($0.aberDesc == theTarget.aberDesc ))  }) {
+                         theTargetHit = targetHitL[pos]
                         
                     } else {
-                            
                         // add that target in the list of targets for that drug
-                        theTargetMode = TargetHitMode_C (id: 0, hugoName: theTarget.hugoName,
-                                                                aberration: theTarget.aberDesc!,mode: SubsMode.direct, Ic50: ic50 )
+                        theTargetHit = TargetHit_C (id: 0,   hugoName: theTarget.hugoName,
+                                                           aberration: theTarget.aberDesc!,mode: SubsMode.direct, Ic50: ic50 )
                         
-                        targetModeL.append (theTargetMode!)
+                        targetHitL.append (theTargetHit)
                     }
                         
                 } else {
-                        
-                    //  create a new Drug-Target relation and add it
+                    
+                    // Drug does not exist yet
+                    // Create a new Drug-Target relation and add it to teh list
                     let newDrug = Drug_C ( drugId: 0, drugName : drug, allowed: allowed )
-                    theTargetMode = TargetHitMode_C (id: 0, hugoName: theTarget.hugoName,
+                    let newDTRelation = DTRelation_C ( drug: newDrug )
+
+                    theTargetHit = TargetHit_C (id: 0, hugoName: theTarget.hugoName,
                                                             aberration: theTarget.aberDesc!, mode: SubsMode.direct, Ic50: ic50 )
                 
-                    let newDTRelation = DTRelation_C ( drug: newDrug )
-                    newDTRelation.targetModeL.append ( theTargetMode! )
+                    newDTRelation.targetHitL.append ( theTargetHit )
 
                     updDTRelL.append ( newDTRelation )
                 }
@@ -125,81 +207,7 @@ class geneDrugs {
             // Look also at target Substitutions if any
             // coz a drug may serve another target and thsi one throug its Targets substitution
             
-            
         }
-/*
-        // Look at all
-        // Target Substitution ?
-        if ( dicTSubsL [theTarget.hugoName] != nil) {
-            
-            // an entry for target Substitution exists
-            // get the table and go trhough all elts
-            let targetSubsL = dicTSubsL [theTarget.hugoName]!
-            
-            
-            for (targetSubs, mode ) in targetSubsL {
-                
-                // what mode are you talking about?
-                var subsMode : SubsMode
-                var theTargetSubs : TargetHitMode_C
-                
-                if (mode == 1) {
-                    subsMode = SubsMode.semidirect
-                } else {
-                    subsMode = SubsMode.semidirect
-                }
-                
-                // do not look at aberrations here: aber = ""
-                let drugIc50L =  dicGDL3 [targetSubs]! [""]
-                
-                // Go through the drugIc50 List
-                // there is at least one element
-                for (drug, ic50) in drugIc50L! {
-                    
-                    // Check if we already know that drug Target
-                    let index = updDTRelL.index (where: { $0.drug.drugName == drug  })
-                    if (index != nil) {
-                        
-                        // Drug already exist. add the target in Target List
-                        var targetModeL = updDTRelL [index!].targetModeL!
-                        if targetModeL.contains (where: {$0.hugoName == targetSubs}) {
-                            let pos  = targetModeL.index( where: {  ( $0.hugoName == targetSubs ) })
-                            // target already in here for that drug
-                            theTargetSubs = targetModeL[pos!]
-                            // target already in here
-                            
-                        } else {
-                            
-                            // add that target in the list of targets for that drug
-                            theTargetSubs = TargetHitMode_C (id: 0, hugoName: targetSubs,
-                                                             aberration:"", mode: subsMode, Ic50: ic50 )
-                            targetModeL.append (theTargetSubs)
-                        }
-                        
-                    } else {
-                        
-                        //  create a new Drug-Target relation and add it
-                        let newDrug = Drug_C ( drugId: 0, drugName : drug, allowed: allowed )
-                        let theTargetSubs  = TargetHitMode_C (id: 0, hugoName: targetSubs,
-                                                             aberration: "", mode: subsMode, Ic50: ic50 )
-                        
-                        let newDTRelation = DTRelation_C ( drug: newDrug )
-                        newDTRelation.targetModeL.append ( theTargetSubs  )
-                        
-                        updDTRelL.append ( newDTRelation )
-                    }
-                    
-                    theTargetMode.targetSubsL.append (theTargetSubs)
-                    
-                }//for
-                
-           }
-            
-            
-        }// target subs entry exist
-        
-        */
-        
         return (updDTRelL)
     }
 }

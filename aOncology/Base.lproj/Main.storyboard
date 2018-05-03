@@ -49,6 +49,7 @@
                                         <connections>
                                             <outlet property="drug1" destination="N8L-ky-uR5" id="685-tH-HVg"/>
                                             <outlet property="score" destination="OJN-X6-wRO" id="OCs-zx-Z4V"/>
+                                            <segue destination="n6f-FC-Jzt" kind="show" identifier="toComboDetail" id="2io-qD-P5x"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="cellComb2Id" id="ZU3-Np-Mcr" customClass="Comb2TableViewCell" customModule="aOncology" customModuleProvider="target">
@@ -85,6 +86,7 @@
                                             <outlet property="drug1" destination="GtB-Nf-DZk" id="UAo-Mn-9cS"/>
                                             <outlet property="drug2" destination="SWv-Zp-aEs" id="1tB-8Q-552"/>
                                             <outlet property="score" destination="G5S-va-nEX" id="kT0-y3-JoT"/>
+                                            <segue destination="n6f-FC-Jzt" kind="show" identifier="toComboDetail" id="z3c-8O-mpK"/>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cellComb3Id" rowHeight="59" id="onP-rd-zz7" customClass="Comb3TableViewCell" customModule="aOncology" customModuleProvider="target">
@@ -129,6 +131,7 @@
                                             <outlet property="drug2" destination="1RG-gk-cdL" id="Yb3-5y-hmR"/>
                                             <outlet property="drug3" destination="KT0-v8-afF" id="vuD-P9-c3F"/>
                                             <outlet property="score" destination="HMU-Sb-uz0" id="PhJ-tS-zYU"/>
+                                            <segue destination="n6f-FC-Jzt" kind="show" identifier="toComboDetail" id="S2Q-i7-abQ"/>
                                         </connections>
                                     </tableViewCell>
                                 </prototypes>
@@ -218,7 +221,7 @@
                                 <color key="textColor" red="0.30910316110000002" green="0.50704449419999997" blue="0.74181878570000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Combinaisons -" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BzI-Gi-zHM">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Combinaisons of " textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BzI-Gi-zHM">
                                 <rect key="frame" x="340" y="624" width="130" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -233,7 +236,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oa6-F7-GMW">
-                                <rect key="frame" x="473" y="624" width="42" height="21"/>
+                                <rect key="frame" x="290" y="624" width="42" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.30910316110000002" green="0.50704449419999997" blue="0.74181878570000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -340,20 +343,13 @@
                                 </connections>
                             </tableView>
                             <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pef-sr-2ce">
-                                <rect key="frame" x="744" y="634" width="50" height="65"/>
+                                <rect key="frame" x="478" y="602" width="30" height="65"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <outlet property="dataSource" destination="BYZ-38-t0r" id="fol-Px-rWb"/>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="Fes-90-P9h"/>
                                 </connections>
                             </pickerView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Drug Count" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CrC-HU-5NU">
-                                <rect key="frame" x="647" y="647" width="100" height="38"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.30910316110000002" green="0.50704449419999997" blue="0.74181878570000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Case 1234-5678" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DL6-r5-70Z">
                                 <rect key="frame" x="28" y="72" width="146" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -401,6 +397,13 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Save"/>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="drugs" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CrC-HU-5NU">
+                                <rect key="frame" x="515" y="615" width="57" height="38"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="0.30910316110000002" green="0.50704449419999997" blue="0.74181878570000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -453,6 +456,34 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZsG-Mf-Z9e" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1239.5683453237411" y="-1018.1654676258993"/>
+        </scene>
+        <!--Combo Detail View Controller-->
+        <scene sceneID="nrX-nZ-kI0">
+            <objects>
+                <viewController id="n6f-FC-Jzt" customClass="ComboDetailViewController" customModule="aOncology" customModuleProvider="target" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="RjH-Rw-bzH">
+                        <rect key="frame" x="0.0" y="0.0" width="834" height="1112"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="66G-Vj-WNb">
+                                <rect key="frame" x="102" y="121" width="595" height="326"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                            </textView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <viewLayoutGuide key="safeArea" id="2bu-7e-FJ1"/>
+                    </view>
+                    <connections>
+                        <outlet property="dtRelText" destination="66G-Vj-WNb" id="0T6-Vm-xKA"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CuO-IB-TnT" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1239.5683453237411" y="-330.21582733812949"/>
         </scene>
         <!--Login View Controller-->
         <scene sceneID="suQ-EA-1dR">
@@ -584,4 +615,7 @@
         <image name="person-generic" width="254" height="254"/>
         <image name="save" width="225" height="225"/>
     </resources>
+    <inferredMetricsTieBreakers>
+        <segue reference="S2Q-i7-abQ"/>
+    </inferredMetricsTieBreakers>
 </document>
