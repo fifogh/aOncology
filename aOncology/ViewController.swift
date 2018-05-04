@@ -11,6 +11,7 @@ import UIKit
 enum CalcMode {case auto, manual}
 
 var drugNumberL = ["1", "2", "3"]
+var mutBurdenL  = ["low", "medium", "high"]
 
 var targetL   = [Target_C]()              // Tragets list
 var dtRelL    = [DTRelation_C] ()         // Drug-Target relation list
@@ -87,7 +88,6 @@ class ViewController: UIViewController  {
                 let myIndexPath = self.drugListTableview.indexPathForSelectedRow!
                 let row = myIndexPath.row
                 destinationVC.navigationItem.title = dtRelL[row].drug.drugName
-              //  destinationVC.drugName = drugNameL[row]
                 destinationVC.drugName = dtRelL[row].drug.drugName
             }
             
@@ -380,6 +380,49 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
        return 3
     }
     
+    func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
+        var pickerLabel: UILabel? = (view as? UILabel)
+        if pickerLabel == nil {
+            pickerLabel = UILabel()
+            pickerLabel?.font = UIFont.systemFont(ofSize: 17.0)
+            pickerLabel?.textAlignment = .center
+        }
+        if (pickerView.tag == 0){
+            pickerLabel?.text = drugNumberL [row]
+        } else {
+            pickerLabel?.text = mutBurdenL [row]
+        }
+        pickerLabel?.textColor = UIColor.black
+        
+        
+        // no need to rebuild combos
+        // they all exist but need to adjust counters
+       // comboLen = row + 1
+        //print ("Combolen : \(comboLen)")
+        
+         // pickerLabel?.text = String (drugNumberL [row])
+        //combListTableview.reloadData()
+        //updateCounterDisplay()
+        
+        return pickerLabel!
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+
+        // no need to rebuild combos
+        // they all exist but need to adjust counters
+        // pickerLabel?.text = String (drugNumberL [row])
+        
+        if (pickerView.tag == 0){
+            comboLen = row + 1
+            print ("Combolen : \(comboLen)")
+            combListTableview.reloadData()
+            updateCounterDisplay()
+        }
+        
+    }
+
+    /*
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         comboLen = row + 1
 
@@ -391,7 +434,7 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
 
         return (drugNumberL [row ])
     }
-
+*/
 }
 
 //------------------------------------------------------------------------
@@ -423,7 +466,7 @@ extension ViewController: targetChangeDelegate {
             let combElem = Combination_C (dtRelList: elem )
             combo1L.append ( combElem )
         }
-        combo1L.sort(by: { $0.strengthScore > $1.strengthScore })
+        combo1L.sort(by: { ($0.strengthScore > $1.strengthScore)  })
         
         combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 2)
         for elem in combosxx{

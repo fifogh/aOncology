@@ -33,14 +33,19 @@ class DTRelation_C  {
         targetHitL.removeAll()
     }
     
-    func allTargetFound (inL: [TargetHit_C] ) -> Bool {
+    
+    
+    //-------------------------------------------------------
+    // Function isIncluded
+    // check if self.TargetLits is included in the other TargetList
+    func isIncluded (inDTRel: DTRelation_C ) -> Bool {
         
-        if (inL.count != targetHitL.count) {
+        if (inDTRel.targetHitL.count < self.targetHitL.count) {
             return (false)
         }
-        
-        for t in targetHitL {
-            if (t.targetExist ( inL : inL  )){
+    
+        for t in self.targetHitL {
+            if (t.targetSame ( inL : inDTRel.targetHitL  )){
                 continue
             } else {
                 return (false)
@@ -160,15 +165,18 @@ class TargetHit_C : Target_C  {
     }
     
     //-------------------------------------------------------
-    // same target with same hit exist in a Target Hit list?
-    func targetExist (inL : [TargetHit_C]) -> Bool {
+    //Same target with same hit exist in a Target Hit list?
+    // if self has a better hit by 3 then we consider that
+    // it does not exist in teh otehr list
+    func targetSame (inL : [TargetHit_C]) -> Bool {
 
         var ret = false
-    
-        if let pos = inL.index( where: {  (($0.hugoName == self.hugoName) && ($0.aberDesc! == self.aberDesc ))  }) {
-            var betterHit = inL[pos].hitScore - self.hitScore
-            betterHit = betterHit > 0 ? betterHit : -betterHit
-            if (betterHit < hitThreshold) {
+        
+        //if let pos = inL.index( where: {  (($0.hugoName == self.hugoName) && ($0.aberDesc! == self.aberDesc ))  }) {
+
+        if let pos = inL.index( where: {  ($0.hugoName == self.hugoName)  }) {
+            
+            if ( (self.hitScore - inL[pos].hitScore) < hitThreshold) {
                 ret = true
             }
         }

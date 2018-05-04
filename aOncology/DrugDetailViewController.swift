@@ -14,6 +14,8 @@ class DrugDetailViewController: UIViewController {
     var drugName : String = String("drug")
 
     @IBOutlet var webView: WKWebView!
+  
+
     
     override func viewDidLoad() {
         super.viewDidLoad()

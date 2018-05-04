@@ -38,22 +38,27 @@ class ComboDetailViewController: UIViewController {
     
     func displayCombo () {
         let relList : [DTRelation_C]
-        var redund : Bool
+        var redund  : Bool
+        var zeroHit : Bool
         
         if ( drugCount == 1 ) {
             relList = combo1L[row].dtRelL
-            redund = combo1L[row].redundancy
+            redund  = combo1L[row].redundancy
+            zeroHit = combo1L[row].hasAZeroHit
             
         } else if ( drugCount == 2 ) {
             relList = combo2L[row].dtRelL
-            redund = combo2L[row].redundancy
+            redund  = combo2L[row].redundancy
+            zeroHit = combo2L[row].hasAZeroHit
             
         } else {
             relList = combo3L[row].dtRelL
-            redund = combo3L[row].redundancy
+            redund  = combo3L[row].redundancy
+            zeroHit = combo3L[row].hasAZeroHit
+        
         }
         
-        str = "redundancy = " + String (redund) + "\n"
+        str = "redundancy = " + String (redund) + "\nhasAZeroHit = " + String(zeroHit) + "\n\n"
         
         for rel in relList {
             str = str + rel.drug.drugName + "\n"
