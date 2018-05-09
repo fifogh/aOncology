@@ -90,7 +90,9 @@
 		6DC906B82086B3C700286AB6 /* aOncology */ = {
 			isa = PBXGroup;
 			children = (
-				6DDA587C20A2878B00208EF1 /* Data */,
+				6D4F30A82093EE08006B946E /* DTRelData.swift */,
+				6DDA587A20A282EE00208EF1 /* GeneData.swift */,
+				6DDA5876209D496500208EF1 /* TSubData.swift */,
 				6DDA587820A27D1100208EF1 /* SearchTextField.swift */,
 				6D5DB41220914D7700C273FE /* Target_C.swift */,
 				6D4F30AA2094C32B006B946E /* DTRelation.swift */,
@@ -114,16 +116,6 @@
 				6DC906CB2086B4DB00286AB6 /* donnut.png */,
 			);
 			path = aOncology;
-			sourceTree = "<group>";
-		};
-		6DDA587C20A2878B00208EF1 /* Data */ = {
-			isa = PBXGroup;
-			children = (
-				6D4F30A82093EE08006B946E /* DTRelData.swift */,
-				6DDA587A20A282EE00208EF1 /* GeneData.swift */,
-				6DDA5876209D496500208EF1 /* TSubData.swift */,
-			);
-			path = Data;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
