@@ -8,33 +8,48 @@
 
 import UIKit
 
-enum CalcMode {case auto, manual}
+enum CalcMode  {case auto, manual}
+enum MutBurden {case low, medium, high}
+enum MicroSat  {case low, high }
 
-var drugNumberL = ["1", "2", "3"]
-var mutBurdenL  = ["low", "medium", "high"]
+var drugNumberL  = ["1", "2", "3"]            // picker view labels
+var mutBurdenL   = ["low", "medium", "high"]
+var microsatIL   = ["low", "high"]
 
-var targetL   = [Target_C]()              // Tragets list
-var dtRelL    = [DTRelation_C] ()         // Drug-Target relation list
+var targetL   = [Target_C]()                 // Tragets list
+var dtRelL    = [DTRelation_C] ()            // Drug-Target relation list
 
-var combo1L   = [Combination_C]()        // 1 drug Combos
-var combo2L   = [Combination_C]()        // 2 drug Combos
-var combo3L   = [Combination_C]()        // 3 drug Combos
+var combo1L   = [Combination_C]()           // 1 drug Combos
+var combo2L   = [Combination_C]()           // 2 drug Combos
+var combo3L   = [Combination_C]()           // 3 drug Combos
+var comboL    = [combo1L,combo2L,combo3L]   // list( 1d, 2d, 3d)  of combinations list
 
-var noDrugNameL  = [String]()             // Forbidden drugs list
-var myCombMaker  = CombMaker_C ()         // Combinatory utilitary
+var noDrugNameL  = [String]()               // Forbidden drugs list
+var myCombMaker  = CombMaker_C ()           // Combinatory utilitary
+
+var targetIndex  = IndexPath ()
 
 class ViewController: UIViewController  {
     
     var comboLen = 1
-    var myGeneDrug = geneDrugs ()
     var loggedIn : Bool!
     var calcMode = CalcMode.auto
     
+    var actionableTargetCount = 0
     
+    var MMRState = false
+    var OctState = false
+    
+    var mutBurden = MutBurden.low
+    var microSat  = MicroSat.low
+    
+    var myGeneDrug = geneDrugs ()
+
     @IBOutlet var folderImage: UIImageView!
     
-    @IBOutlet var newGeneName: UITextField!
-    @IBOutlet var newAberrationName: UITextField!
+ //   @IBOutlet var newGeneName: UITextField!
+    @IBOutlet var newGeneName: SearchTextField!
+    @IBOutlet var newAberrationName: SearchTextField!
 
     @IBOutlet var targetInputTableView: UITableView!
     @IBOutlet var drugListTableview: UITableView!
@@ -47,6 +62,38 @@ class ViewController: UIViewController  {
     @IBOutlet var geneCount: UILabel!
     @IBOutlet var combCount: UILabel!
   
+    @IBOutlet var MMRCheckImage: UIImageView!
+    @IBOutlet var OctrCheckImage: UIImageView!
+    
+    
+    
+    
+    //------------------------------------
+    // MMR Status
+    @IBAction func MMRToggle(_ sender: Any) {
+        if (MMRState == false) {
+            MMRState = true
+            MMRCheckImage.alpha = 1
+        } else {
+            MMRState = false
+            MMRCheckImage.alpha = 0.3
+        }
+    }
+    
+    
+    //------------------------------------
+    // Octreotide status
+    @IBAction func OctToggle(_ sender: Any) {
+        if (OctState == false) {
+            OctState = true
+            OctrCheckImage.alpha = 1
+        } else {
+            OctState = false
+            OctrCheckImage.alpha = 0.3
+        }
+    }
+    
+    
     //------------------------------------
     // The Mode Auto/Manual has changed
     @IBAction func autoManualChange(_ sender: UISegmentedControl) {
@@ -72,8 +119,8 @@ class ViewController: UIViewController  {
         updateCounterDisplay()
     }
     
-
-   // func prepare( for segue:UIStoryboardSegue, sender: AnyObject?) {
+    //------------------------------------
+   // Segue stuff
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toLoginSegue"
         {
@@ -109,6 +156,16 @@ class ViewController: UIViewController  {
         super.viewDidLoad()
         loggedIn = false
         // Do any additional setup after loading the view, typically from a nib.
+        
+       // newGeneName.filterStrings(dicDTRelL.keys)
+        newGeneName.filterStrings(Array(geneDataList))
+        newGeneName.maxNumberOfResults = 5
+        newGeneName.minCharactersNumberToStartFiltering = 2
+        
+        
+        newAberrationName.filterStrings(Array(allKeyWordL))
+        newAberrationName.maxNumberOfResults = 5
+        newAberrationName.minCharactersNumberToStartFiltering = 1 
      }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -157,13 +214,14 @@ class ViewController: UIViewController  {
     func addTarget (target: Target_C) {
 
         if targetL.contains(where: { ($0.hugoName == target.hugoName) && ($0.aberDesc == target.aberDesc)}) {
-            let alert = UIAlertController(title: "Target already In", message: "No need to input twice", preferredStyle: .alert)
+            let alert = UIAlertController(title: "Target already Entered", message: "No need to input twice", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "ok", style: .default, handler: nil))
             self.present(alert, animated: true)
             
         }else{
             targetL.append(target)
-            
+            let index = IndexPath(row:targetL.count-1, section: 0)
+           
             self.targetInputTableView.beginUpdates()
             self.targetInputTableView.insertRows(at: [IndexPath.init(row: targetL.count-1, section: 0)], with: .automatic)
             self.targetInputTableView.endUpdates()
@@ -171,7 +229,8 @@ class ViewController: UIViewController  {
             myGeneDrug.newGeneConfigDelegate  = self
             myGeneDrug.targetToAdd (theTarget: target,  inDrugL: dtRelL, allowed: calcMode == CalcMode.auto )
             geneCount.text = String( targetL.count)
-            
+            self.targetInputTableView.scrollToRow(at: index, at: .middle, animated: true)
+           
          }
     }
     
@@ -188,18 +247,9 @@ class ViewController: UIViewController  {
     //------------------------------------
     // return number of elts in each combo
     func comboCount () -> Int {
-        var countNb = 0;
         
-        if (comboLen == 1) {
-            countNb = combo1L.count
-            
-        } else if (comboLen == 2) {
-            countNb = combo2L.count
-
-        } else {
-            countNb = combo3L.count
-        }
-        return countNb
+        let countNb = comboL[comboLen-1].count
+        return ( countNb )
     }
 
     
@@ -237,9 +287,14 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
         if (tableView == targetInputTableView){
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellTargetId") as! TargetTableViewCell
             let gene = targetL[indexPath.row].hugoName
-            let aberration = targetL[indexPath.row].aberDesc
+            let aberration = targetL[indexPath.row].aberDisp
             cell.gene.text = gene
             cell.aberration.text = aberration
+            if (targetL[indexPath.row].actionable == false ) {
+                cell.gene.textColor = UIColor.lightGray
+            }else{
+                cell.gene.textColor = UIColor.black
+            }
             
             return cell
             
@@ -270,8 +325,9 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             if (self.comboLen == 1 ){
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb1Id") as! Comb1TableViewCell
-                let drug1Name = combo1L[indexPath.row].dtRelL[0].drug.drugName
-                let score     = formatter.string (from: combo1L[indexPath.row].strengthScore as NSNumber )
+                let drug1Name = comboL[0][indexPath.row].dtRelL[0].drug.drugName
+                
+                let score     = formatter.string (from: comboL[0][indexPath.row].strengthScore as NSNumber )
                 cell.drug1.text = drug1Name
                 cell.score.text = score
                 return cell
@@ -279,10 +335,10 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             } else if (self.comboLen == 2) {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb2Id") as! Comb2TableViewCell
-                let drug1Name = combo2L[indexPath.row].dtRelL[0].drug.drugName
-                let drug2Name = combo2L[indexPath.row].dtRelL[1].drug.drugName
+                let drug1Name = comboL[1][indexPath.row].dtRelL[0].drug.drugName
+                let drug2Name = comboL[1][indexPath.row].dtRelL[1].drug.drugName
                 
-                let score = formatter.string (from: combo2L[indexPath.row].strengthScore as NSNumber )
+                let score = formatter.string (from: comboL[1][indexPath.row].strengthScore as NSNumber )
                 cell.drug1.text = drug1Name
                 cell.drug2.text = drug2Name
                 cell.score.text = score
@@ -291,11 +347,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             } else {
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb3Id") as! Comb3TableViewCell
-                let drug1Name = combo3L[indexPath.row].dtRelL[0].drug.drugName
-                let drug2Name = combo3L[indexPath.row].dtRelL[1].drug.drugName
-                let drug3Name = combo3L[indexPath.row].dtRelL[2].drug.drugName
+                let drug1Name = comboL[2][indexPath.row].dtRelL[0].drug.drugName
+                let drug2Name = comboL[2][indexPath.row].dtRelL[1].drug.drugName
+                let drug3Name = comboL[2][indexPath.row].dtRelL[2].drug.drugName
                 
-                let score = formatter.string (from: combo3L[indexPath.row].strengthScore as NSNumber )
+                let score = formatter.string (from: comboL[2][indexPath.row].strengthScore as NSNumber )
                 cell.drug1.text = drug1Name
                 cell.drug2.text = drug2Name
                 cell.drug3.text = drug3Name
@@ -308,6 +364,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             if (tableView == targetInputTableView){
+                
+                // keep actionable counter up to date
+                if (targetL[indexPath.row].actionable == true){
+                    actionableTargetCount = actionableTargetCount - 1
+                }
+                
                 targetL.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .fade)
                 self.subTarget ()
@@ -329,7 +391,6 @@ extension ViewController: OptionButtonsDelegate {
         
         
         // a drug has been added or removed
-        
         let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
         let label = cell.drugName
 
@@ -356,12 +417,11 @@ extension ViewController: OptionButtonsDelegate {
 extension ViewController: UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        print("TextField should return method called")
         textField.resignFirstResponder();
         if (textField == newGeneName) {
-            self.newGeneName = textField
+            self.newGeneName = textField as! SearchTextField
         } else  {
-            self.newAberrationName = textField
+            self.newAberrationName = textField as! SearchTextField
         }
         return true;
     }
@@ -377,9 +437,16 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
     }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-       return 3
+        if (pickerView.tag == 2){
+            return 2
+        } else {
+            return 3
+        }
     }
     
+    
+    //---------------------------------------------------
+    // Picker row display
     func pickerView(_ pickerView: UIPickerView, viewForRow row: Int, forComponent component: Int, reusing view: UIView?) -> UIView {
         var pickerLabel: UILabel? = (view as? UILabel)
         if pickerLabel == nil {
@@ -387,26 +454,26 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
             pickerLabel?.font = UIFont.systemFont(ofSize: 17.0)
             pickerLabel?.textAlignment = .center
         }
+        
+        
         if (pickerView.tag == 0){
             pickerLabel?.text = drugNumberL [row]
-        } else {
+            
+        } else if (pickerView.tag == 1){
             pickerLabel?.text = mutBurdenL [row]
+            
+        } else if (pickerView.tag == 2){
+            pickerLabel?.text = microsatIL [row]
         }
+            
         pickerLabel?.textColor = UIColor.black
         
-        
-        // no need to rebuild combos
-        // they all exist but need to adjust counters
-       // comboLen = row + 1
-        //print ("Combolen : \(comboLen)")
-        
-         // pickerLabel?.text = String (drugNumberL [row])
-        //combListTableview.reloadData()
-        //updateCounterDisplay()
         
         return pickerLabel!
     }
     
+    //---------------------------------------------------
+    // Picker row selection
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
 
         // no need to rebuild combos
@@ -414,27 +481,42 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
         // pickerLabel?.text = String (drugNumberL [row])
         
         if (pickerView.tag == 0){
+            // Number of drugs
             comboLen = row + 1
-            print ("Combolen : \(comboLen)")
             combListTableview.reloadData()
             updateCounterDisplay()
+            
+        } else if (pickerView.tag == 1){
+            // Mutation burden
+            switch row {
+            case 0 :
+                self.mutBurden = MutBurden.low
+                break
+            case 1 :
+                self.mutBurden = MutBurden.medium
+                break
+            case 2 :
+                self.mutBurden = MutBurden.high
+                break
+                
+            default:
+                break
+            }
+            
+        } else if (pickerView.tag == 2){
+            // Microsatellite status
+            switch row {
+            case 0 :
+                self.microSat = MicroSat.low
+                break
+            case 1 :
+                self.microSat = MicroSat.high
+               
+            default:
+                break
+            }
         }
-        
     }
-
-    /*
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        comboLen = row + 1
-
-        combListTableview.reloadData()
-        
-        // no need to rebuild combos
-        // they all exist but need to adjust counters
-        updateCounterDisplay()
-
-        return (drugNumberL [row ])
-    }
-*/
 }
 
 //------------------------------------------------------------------------
@@ -443,63 +525,68 @@ extension ViewController: targetChangeDelegate {
     
     func buildAllCombos () {
         
-        //delete all previous
-        combo1L.removeAll()
-        combo2L.removeAll()
-        combo3L.removeAll()
-        
-        
-        // Create the list of combinations 1, 2 and 3 drugs
-        var combosxx : [[DTRelation_C]]
-        var dtRelLxx = [DTRelation_C] ()
-        
-        
         //Take the non forbidden Drugs Only
+        var dtRelLxx = [DTRelation_C] ()
         for dt in dtRelL{
             if (dt.drug.allowed == true) {
                 dtRelLxx.append(dt)
             }
         }
         
-        combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 1)
-        for elem in combosxx{
-            let combElem = Combination_C (dtRelList: elem )
-            combo1L.append ( combElem )
+        // recalculate combos 1d,2d,& 3d
+        var drugNb = 1
+        while (drugNb < 4){
+            
+            comboL[drugNb-1].removeAll()
+            let combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: drugNb)
+            for elem in combosxx{
+                let combElem = Combination_C (dtRelList: elem,
+                                              actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count ) 
+                comboL[drugNb-1].append ( combElem )
+            }
+            comboL[drugNb-1].sort(by: { ($0.strengthScore > $1.strengthScore)  })
+            drugNb = drugNb + 1
+            
         }
-        combo1L.sort(by: { ($0.strengthScore > $1.strengthScore)  })
-        
-        combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 2)
-        for elem in combosxx{
-            let combElem = Combination_C (dtRelList: elem )
-            combo2L.append ( combElem )
-        }
-        combo2L.sort(by: { $0.strengthScore > $1.strengthScore })
-        
-        combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: 3)
-        for elem in combosxx{
-            let combElem = Combination_C (dtRelList: elem )
-            combo3L.append ( combElem )
-        }
-        combo3L.sort(by: { $0.strengthScore > $1.strengthScore })
-        
+ 
         dtRelLxx.removeAll()
         
         combListTableview.reloadData()
         
     }
     
-    func drugListAdjusted ( outDrugL: [DTRelation_C] ){
+    func drugListAdjusted ( outDrugL: [DTRelation_C], actionable: Bool, rebuilt: Bool ){
         
         // free previous Drug Target Relation list
         // and take teh new one
-        dtRelL.removeAll()
-        dtRelL = outDrugL
-        drugListTableview.reloadData()
         
-        // generate all combos
-        // and update counters
-        self.buildAllCombos ()
-        self.updateCounterDisplay()
+        if ( actionable == true ) {
+            if (rebuilt == false) {
+                // do not increment if complete rebuilt of the list
+                actionableTargetCount = actionableTargetCount + 1
+            }
+            dtRelL.removeAll()
+            dtRelL = outDrugL
+            drugListTableview.reloadData()
+            
+            // generate all combos
+            // and update counters
+            self.buildAllCombos ()
+            self.updateCounterDisplay()
+            
+        } else {
+            
+            // mark the Gene as not actionable
+            /*
+            let indexPath = IndexPath(item: targetL.count - 1, section: 0)
+            let cell = targetInputTableView.cellForRow(at: indexPath) as! TargetTableViewCell
+            let label = cell.gene
+            label!.textColor = UIColor.lightGray
+            */
+            targetL.last!.actionable = false  // remember not acctionnable
+            
+            targetInputTableView.reloadData()
+        }
 
     }
 

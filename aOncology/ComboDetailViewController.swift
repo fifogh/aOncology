@@ -37,29 +37,20 @@ class ComboDetailViewController: UIViewController {
     
     
     func displayCombo () {
-        let relList : [DTRelation_C]
-        var redund  : Bool
-        var zeroHit : Bool
+        let relList     : [DTRelation_C]
+        var redund      : Bool
+        var zeroHit     : Bool
+        var redundCount : Int
         
-        if ( drugCount == 1 ) {
-            relList = combo1L[row].dtRelL
-            redund  = combo1L[row].redundancy
-            zeroHit = combo1L[row].hasAZeroHit
-            
-        } else if ( drugCount == 2 ) {
-            relList = combo2L[row].dtRelL
-            redund  = combo2L[row].redundancy
-            zeroHit = combo2L[row].hasAZeroHit
-            
-        } else {
-            relList = combo3L[row].dtRelL
-            redund  = combo3L[row].redundancy
-            zeroHit = combo3L[row].hasAZeroHit
-        
-        }
-        
-        str = "redundancy = " + String (redund) + "\nhasAZeroHit = " + String(zeroHit) + "\n\n"
-        
+        relList      = comboL[drugCount-1][row].dtRelL
+        redund       = comboL[drugCount-1][row].redundancy
+        redundCount  = comboL[drugCount-1][row].redundPrRnaCount + comboL[drugCount-1][row].redundGenomCount
+        zeroHit      = comboL[drugCount-1][row].hasAZeroHit
+
+        str = "redundancy = " + String (redund) + "\nRedund Target # : " + String (redundCount) + "\nhasAZeroHit = " + String(zeroHit) + "\n\n"
+        str = str + "Strength : " + String (comboL[drugCount-1][row].strengthScore) + "\n"
+        str = str + "Match    : " + String (comboL[drugCount-1][row].matchScore) + "\n"
+
         for rel in relList {
             str = str + rel.drug.drugName + "\n"
             

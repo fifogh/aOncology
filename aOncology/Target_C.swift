@@ -9,22 +9,15 @@
 import Foundation
 
 
+enum MarkerType :Int {case genomic, protein, rna }         // Markers Types
 
-//------------------------------------------------------------------------------
-// DRUG Class
-class Drug_C {
-    
-    var id   : Int           // Id instead of Name
-    var drugName : String    // plain name
-    var allowed  : Bool      // user selection yes/no
-    
-    
-    init (drugId: Int, drugName: String, allowed: Bool){
-        self.id       = drugId
-        self.drugName = drugName
-        self.allowed  = allowed
-    }
-}
+
+var  protMarkerL  = [ "positive","negative","pos","neg", "+","-","high","low","hi","lo" ]
+var  rnaMarkerL   = [ "overexpr", "over"]
+var  keyWordAberL = [ "gain", "amp", "ampl", "amplification","loss" ]
+
+var  allKeyWordL  = protMarkerL + rnaMarkerL + keyWordAberL
+
 
 
 //------------------------------------------------------------------------------
@@ -44,15 +37,44 @@ class Gene_C {
 // TARGET Class
 class Target_C : Gene_C  {
     
-     var aberDesc   : String?       // aberration Description
+    
+    var aberDesc   : String?       // aberration Description
+    var aberDisp   : String?       // keyword is displayed and AberDesc is set to ""
+    var actionable : Bool
+    var markerType : MarkerType
+    var keyword    : String?       // in case of protein, rna marker, or keyword
 
      init (id: Int, hugoName: String, aberration: String){
-        aberDesc    = aberration
+        self.aberDesc    = aberration      // might be erased
+        self.aberDisp    = aberration      // keep this one for display
+        self.actionable  = true
+        self.markerType  = MarkerType.genomic
 
         super.init(geneId: id, hugoName: hugoName)
+        self.setMarkerType()
+        
     }
+    
+    func setMarkerType (){
+        if protMarkerL.contains(where: { ($0 == aberDesc) }) {
+            self.markerType  = MarkerType.protein
+            self.keyword     = aberDesc
+            self.aberDesc    = ""
+            
+        } else if rnaMarkerL.contains(where: { ($0 == aberDesc) }) {
+            self.markerType  = MarkerType.protein
+            self.keyword     = aberDesc
+            self.aberDesc    = ""
+            
+        } else  if keyWordAberL.contains(where: { ($0 == aberDesc) }) {
+            self.keyword     = aberDesc
+            self.aberDesc    = ""
+        }
+        
+    }
+    
 }
-
+/*
 //------------------------------------------------------------------------------
 // TARGET Substitution
 class TargetSubs_C : Gene_C  {
@@ -109,6 +131,6 @@ class TargetDrugs_C  {
     }
 }
 
-
+*/
 
 // var targetDrugsL = [TargetDrugs_C]()

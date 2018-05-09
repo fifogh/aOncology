@@ -13,7 +13,27 @@ let hitThreshold = 3.0      // above this 2 Hitscore make 2 drugs non redundant 
 //------------------------------------------------------------------------------
 // TYPES
 enum SubsMode :  Int {case direct, semidirect, indirect }    // Substitutions Types
-enum MarkerType :Int {case genomic, protein, rna }         // Markers Types
+
+
+
+
+//------------------------------------------------------------------------------
+// DRUG Class
+class Drug_C {
+    
+    var id   : Int           // Id instead of Name
+    var drugName : String    // plain name
+    var allowed  : Bool      // user selection yes/no
+    
+    
+    init (drugId: Int, drugName: String, allowed: Bool){
+        self.id       = drugId
+        self.drugName = drugName
+        self.allowed  = allowed
+    }
+}
+
+
 
 
 //------------------------------------------------------------------------------
@@ -36,23 +56,48 @@ class DTRelation_C  {
     
     
     //-------------------------------------------------------
-    // Function isIncluded
-    // check if self.TargetLits is included in the other TargetList
-    func isIncluded (inDTRel: DTRelation_C ) -> Bool {
+    // Function sameTargetL
+    // check if 2 target list contain same elts
+    // if true, return the number each time a target is better
+    func sameTargetL (asInTL: [TargetHit_C] ) -> (Bool, Int, Int, Int, Int) {
         
-        if (inDTRel.targetHitL.count < self.targetHitL.count) {
-            return (false)
-        }
-    
+        var iBetterG = 0     // self  is better Genomic marker
+        var oBetterG = 0     // other is better Genomic marker
+        
+        var iBetterP = 0     // self  is better Pr/Rna marker
+        var oBetterP = 0     // other is better Pr/Rna marker
+        
         for t in self.targetHitL {
-            if (t.targetSame ( inL : inDTRel.targetHitL  )){
-                continue
+            
+            if let pos = t.targetPos (inL: asInTL) {
+                // compare the HitScores
+                if (( t.hitScore - asInTL[pos].hitScore) > hitThreshold ) {
+                    if (t.markerType == .genomic) {
+                         iBetterG = iBetterG + 1
+                    } else {
+                         iBetterP = iBetterP + 1
+                    }
+                    
+                } else  if ((asInTL[pos].hitScore -  t.hitScore) > hitThreshold ) {
+                    if (t.markerType == .genomic) {
+                        oBetterG = oBetterG + 1
+                    } else {
+                        oBetterP = oBetterP + 1
+                    }
+                   
+                }
+                
             } else {
-                return (false)
+                // differents targets
+                // counters are nin relevant
+                return (false, 0, 0, 0, 0)
             }
         }
-        return (true)
+        
+        return (true, iBetterG, iBetterP, oBetterG, oBetterP)
     }
+                
+ 
 }
 
 
@@ -61,7 +106,7 @@ class DTRelation_C  {
 class TargetHit_C : Target_C  {
     
     var mode         : SubsMode            // direct/indirect/semi_direct
-    var markerType   : MarkerType          // genomic, protein, rna
+    
     
     var Ic50         : Double?             // doesn not exist if Hit through Substitutions only
     var hitScore     : Double              // Calculated
@@ -74,7 +119,6 @@ class TargetHit_C : Target_C  {
         
         self.mode        = mode
         self.Ic50        = Ic50
-        self.markerType  = MarkerType.genomic
         self.hitScore    = 0
         self.targetSubsL = [TargetHit_C]()
         
@@ -87,7 +131,6 @@ class TargetHit_C : Target_C  {
     // partial init without Ic50 - Hit is through target substitutions
     init (id: Int, hugoName: String, aberration: String, mode: SubsMode){
         self.mode        = mode
-        self.markerType  = MarkerType.genomic
         self.hitScore    = 0
         self.targetSubsL = [TargetHit_C]()
         
@@ -127,7 +170,7 @@ class TargetHit_C : Target_C  {
         }
         
         // in case of protein Marker : half of the calculated score
-        if ( markerType == MarkerType.protein ) {
+        if (( markerType == MarkerType.protein ) || ( markerType == MarkerType.rna)) {
             hitScore = hitScore / 2 ;
          }
         
@@ -167,20 +210,12 @@ class TargetHit_C : Target_C  {
     //-------------------------------------------------------
     //Same target with same hit exist in a Target Hit list?
     // if self has a better hit by 3 then we consider that
-    // it does not exist in teh otehr list
-    func targetSame (inL : [TargetHit_C]) -> Bool {
+    // it does not exist in the other list
+    func targetPos (inL : [TargetHit_C]) -> Int? {
 
-        var ret = false
-        
-        //if let pos = inL.index( where: {  (($0.hugoName == self.hugoName) && ($0.aberDesc! == self.aberDesc ))  }) {
-
-        if let pos = inL.index( where: {  ($0.hugoName == self.hugoName)  }) {
-            
-            if ( (self.hitScore - inL[pos].hitScore) < hitThreshold) {
-                ret = true
-            }
-        }
-        return ret
+         let pos = inL.index( where: {  ($0.hugoName == self.hugoName)  })
+         return pos
+     
     }
   
 }
