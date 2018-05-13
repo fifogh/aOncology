@@ -16,7 +16,7 @@ var drugNumberL  = ["1", "2", "3"]            // picker view labels
 var mutBurdenL   = ["low", "medium", "high"]
 var microsatIL   = ["low", "high"]
 
-var targetL   = [Target_C]()                 // Tragets list
+var targetL   = [Target_C]()                 // Tragets list: all pathogenic
 var dtRelL    = [DTRelation_C] ()            // Drug-Target relation list
 
 var combo1L   = [Combination_C]()           // 1 drug Combos
@@ -24,7 +24,7 @@ var combo2L   = [Combination_C]()           // 2 drug Combos
 var combo3L   = [Combination_C]()           // 3 drug Combos
 var comboL    = [combo1L,combo2L,combo3L]   // list( 1d, 2d, 3d)  of combinations list
 
-var noDrugNameL  = [String]()               // Forbidden drugs list
+var noDrugNameL  = [String]()               // Forbidden drugs list to remember
 var myCombMaker  = CombMaker_C ()           // Combinatory utilitary
 
 var targetIndex  = IndexPath ()
@@ -47,7 +47,6 @@ class ViewController: UIViewController  {
 
     @IBOutlet var folderImage: UIImageView!
     
- //   @IBOutlet var newGeneName: UITextField!
     @IBOutlet var newGeneName: SearchTextField!
     @IBOutlet var newAberrationName: SearchTextField!
 
@@ -144,7 +143,9 @@ class ViewController: UIViewController  {
                 
                 destinationVC.row = myIndexPath.row
                 destinationVC.drugCount = self.comboLen
-                
+                destinationVC.reducedCombo = self.calcMode == .manual
+                destinationVC.actionableTargetCount = self.actionableTargetCount
+    
                 destinationVC.navigationItem.title = "Combination Detail"
 
             }
@@ -165,7 +166,20 @@ class ViewController: UIViewController  {
         
         newAberrationName.filterStrings(Array(allKeyWordL))
         newAberrationName.maxNumberOfResults = 5
-        newAberrationName.minCharactersNumberToStartFiltering = 1 
+        newAberrationName.minCharactersNumberToStartFiltering = 1
+        
+        
+        // remove tab bar text asistant
+        var item : UITextInputAssistantItem = newGeneName.inputAssistantItem
+        item.leadingBarButtonGroups = []
+        item.trailingBarButtonGroups = []
+        
+        item  = newAberrationName.inputAssistantItem
+        item.leadingBarButtonGroups = []
+        item.trailingBarButtonGroups = []
+        
+
+       
      }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -187,6 +201,9 @@ class ViewController: UIViewController  {
     // a Target has been entered
     @IBAction func addGeneTaped(_ sender: Any) {
         
+        var theHugoName = ""
+        var theSynoName = ""
+        
         if let inputGene = newGeneName.text {
             
             // the Gene input is not left blank
@@ -199,8 +216,18 @@ class ViewController: UIViewController  {
                 trimmedAber = ""
             }
             
-            // create the target object and add it in the list
-            let target : Target_C = Target_C (id: 0, hugoName: trimmedGene, aberration: trimmedAber )
+         //   let target : Target_C = Target_C (id: 0, hugoName: trimmedGene, aberration: trimmedAber )
+            
+            if (synoGeneData[trimmedGene] != nil){
+                theHugoName = synoGeneData[trimmedGene]!
+                theSynoName = trimmedGene
+            } else {
+                theHugoName = trimmedGene
+                theSynoName = ""
+            }
+            let target : Target_C = Target_C (id: 0, hugoName: theHugoName, aberration: trimmedAber )
+            target.synoName = theSynoName
+            
             self.addTarget (target: target)
             newGeneName.text! = ""
             newAberrationName.text! = ""
@@ -213,7 +240,7 @@ class ViewController: UIViewController  {
     // a Target has been addeed
     func addTarget (target: Target_C) {
 
-        if targetL.contains(where: { ($0.hugoName == target.hugoName) && ($0.aberDesc == target.aberDesc)}) {
+        if targetL.contains(where: { ($0.hugoName == target.hugoName) && ($0.aberDisp == target.aberDisp)}) {
             let alert = UIAlertController(title: "Target already Entered", message: "No need to input twice", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "ok", style: .default, handler: nil))
             self.present(alert, animated: true)
@@ -286,14 +313,25 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
         
         if (tableView == targetInputTableView){
             let cell = tableView.dequeueReusableCell(withIdentifier: "cellTargetId") as! TargetTableViewCell
-            let gene = targetL[indexPath.row].hugoName
+            let hugo = targetL[indexPath.row].hugoName
+            let syno = targetL[indexPath.row].synoName
+            
             let aberration = targetL[indexPath.row].aberDisp
-            cell.gene.text = gene
+            cell.hugoName.text = hugo
+            cell.synoName.text = syno
+
             cell.aberration.text = aberration
             if (targetL[indexPath.row].actionable == false ) {
-                cell.gene.textColor = UIColor.lightGray
+                cell.hugoName.textColor = UIColor.lightGray
             }else{
-                cell.gene.textColor = UIColor.black
+                cell.hugoName.textColor = UIColor.black
+            }
+            
+            if (targetL[indexPath.row].markerType == .protein ) {
+                cell.symbolImage.image = UIImage ( named: "letterP" )
+                cell.symbolImage.isHidden = false
+            } else {
+                cell.symbolImage.isHidden = true
             }
             
             return cell
@@ -330,6 +368,13 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 let score     = formatter.string (from: comboL[0][indexPath.row].strengthScore as NSNumber )
                 cell.drug1.text = drug1Name
                 cell.score.text = score
+
+                //Warning Image
+                if (comboL[0][indexPath.row].redundancy == true) {
+                    cell.warning.isHidden = false
+                } else {
+                    cell.warning.isHidden = true
+                }
                 return cell
                 
             } else if (self.comboLen == 2) {
@@ -342,6 +387,13 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 cell.drug1.text = drug1Name
                 cell.drug2.text = drug2Name
                 cell.score.text = score
+                
+                //Warning Image
+                if (comboL[1][indexPath.row].redundancy == true) {
+                    cell.warning.isHidden = false
+                } else {
+                    cell.warning.isHidden = true
+                }
                 return cell
                 
             } else {
@@ -356,6 +408,13 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 cell.drug2.text = drug2Name
                 cell.drug3.text = drug3Name
                 cell.score.text = score
+                
+                //Warning Image
+                if (comboL[2][indexPath.row].redundancy == true) {
+                    cell.warning.isHidden = false
+                } else {
+                    cell.warning.isHidden = true
+                }
                 return cell
            }
         }
@@ -385,7 +444,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
 }
 
 //------------------------------------------------------------------------
-// OPTION BUTTON (TABLEVIEW ) DELEGATE
+// OPTION BUTTON (DRUG LIST TABLEVIEW ) DELEGATE
 extension ViewController: OptionButtonsDelegate {
     func checkMarkTapped(at index:IndexPath){
         
@@ -404,6 +463,15 @@ extension ViewController: OptionButtonsDelegate {
             label!.textColor = UIColor.black
             cell.checkMark.alpha = 1.0
         }
+        
+        dtRelL.sort(by: { $0.drug.allowed != $1.drug.allowed ? $0.drug.allowed && !$1.drug.allowed : ($0.drug.drugName < $1.drug.drugName)  })
+        //dtRelL.sort(by: { ($0.drug.drugName < $1.drug.drugName) })
+
+        
+        let index = IndexPath(row:0, section: 0)
+        drugListTableview.reloadData()
+        drugListTableview.scrollToRow(at:index, at: .top , animated: true)
+
         
         // rebuild now the combos
         self.buildAllCombos ()
@@ -527,30 +595,41 @@ extension ViewController: targetChangeDelegate {
         
         //Take the non forbidden Drugs Only
         var dtRelLxx = [DTRelation_C] ()
+        var dtRelLyy = [DTRelation_C] ()
         for dt in dtRelL{
             if (dt.drug.allowed == true) {
                 dtRelLxx.append(dt)
+            } else {
+                dtRelLyy.append(dt)
             }
         }
         
         // recalculate combos 1d,2d,& 3d
         var drugNb = 1
         while (drugNb < 4){
-            
+       
             comboL[drugNb-1].removeAll()
+            
             let combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: drugNb)
             for elem in combosxx{
                 let combElem = Combination_C (dtRelList: elem,
                                               actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count ) 
                 comboL[drugNb-1].append ( combElem )
             }
-            comboL[drugNb-1].sort(by: { ($0.strengthScore > $1.strengthScore)  })
-            drugNb = drugNb + 1
+            comboL[drugNb-1].sort(by: { ($0.strengthScore > $1.strengthScore) })
             
+            // remove zero scored combos
+            var c = comboL[drugNb-1].last
+            while ((c != nil) && (c!.strengthScore == 0 ) ) {
+                comboL[drugNb-1].removeLast()
+                c = comboL[drugNb-1].last
+            }
+
+            // take care of next size combo
+            drugNb = drugNb + 1
         }
  
         dtRelLxx.removeAll()
-        
         combListTableview.reloadData()
         
     }

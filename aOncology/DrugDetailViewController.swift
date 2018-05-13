@@ -39,6 +39,8 @@ class DrugDetailViewController: UIViewController {
         webView.load(urlRequest)
     }
 
+    
+    
     /*
     // MARK: - Navigation
 

@@ -38,8 +38,9 @@ class CombMaker_C {
     // create all combinations of k(taking-1) elts in a set of n elts
     // and add another element(with Element) to each combo
     
-    func completeCombinationsWithoutRepetitionFrom<T>(elements: [T], withElem: [T], taking: Int) -> [[T]] {
-        let combinations = combinationsWithoutRepetitionFrom(elements: elements, taking: taking - withElem.count)
+   public func completeCombinationsWithoutRepetitionFrom<T>(elements: [T], withElem: [T], taking: Int) -> [[T]] {
+ //   let combinations = combinationsWithoutRepetitionFrom(elements: elements, taking: taking - withElem.count )
+    let combinations = combinationsWithoutRepetitionFrom(elements: elements, taking: taking - withElem.count > 0 ? taking - withElem.count: taking)
         return  ( combinations.map { $0 + withElem} )
     }
         

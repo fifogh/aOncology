@@ -14,6 +14,7 @@ class Comb2TableViewCell: UITableViewCell {
     @IBOutlet var drug2: UILabel!
     
     @IBOutlet var score: UILabel!
+     @IBOutlet var warning: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()

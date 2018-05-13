@@ -14,6 +14,8 @@ class Comb1TableViewCell: UITableViewCell {
     
     @IBOutlet var score: UILabel!
     
+    @IBOutlet var warning: UIImageView!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

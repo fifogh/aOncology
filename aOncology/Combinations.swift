@@ -20,17 +20,20 @@ class Combination_C   {
     var dtRelL        : [DTRelation_C]
     var redundancy    : Bool                   // true if redundancy detected
     
+    
+    var genomicCount       : Int
+    var protRnaCount       : Int
+    
     var redundPrRnaCount   : Int               // number of redundant protein/rna Markers
     var redundGenomCount   : Int               // number of redundant genomic markers
 
-  //  var redundCount   : Int                    // number of redundant targets
     var hasAZeroHit   : Bool
     var hitSum        : Double
     var redundFact    : Double
     
     var actionableCount : Int
     var pathogenicCount : Int
-
+ 
     init (dtRelList: [DTRelation_C], actionableCount: Int, pathogenicCount : Int  ){
         
         self.dtRelL = dtRelList
@@ -41,17 +44,23 @@ class Combination_C   {
         self.redundFact       = 1.0
         self.hitSum           = 0.0
         self.redundancy       = false
+        
+        self.genomicCount     = 0
+        self.protRnaCount     = 0
         self.redundPrRnaCount = 0
         self.redundGenomCount = 0
+        
         self.hasAZeroHit      = false
         
         self.actionableCount = actionableCount
         self.pathogenicCount = pathogenicCount
-
+ 
         self.checkRedundant()
         self.checkZeroHit ()
         self.calcStrengthScore ()
         self.calcMatchScore ()
+        
+        
     }
     
     
@@ -64,12 +73,7 @@ class Combination_C   {
     // Strength calculation
     func calcStrengthScore () {
         
-        
        // ss = 100 * hitSum / (((genMarkNb + redundGeneNb) * 5 ) + ((protMarkNb + redundProtNb) * 2.5));
-
-        var genomicCount  = 0
-        var protRnaCount  = 0
-
 
         if (redundancy == true) || ( hasAZeroHit == true ){
             strengthScore = 0
@@ -98,12 +102,16 @@ class Combination_C   {
     // Match calculation
     func calcMatchScore () {
         
-        let totalRedundTargets = Double (redundPrRnaCount + redundGenomCount)
-        let comboActedTargets  = Double (self.dtRelL.count)
-        let comboLen = Double (self.dtRelL.count)
+        let totalRedundTargets = self.redundPrRnaCount + self.redundGenomCount
+        let comboActedTargets  = self.genomicCount + self.protRnaCount
+        let comboLen = self.dtRelL.count
         
-        matchScore  = redundFact * hitSum / (comboLen) * (comboActedTargets + totalRedundTargets) * (comboActedTargets + totalRedundTargets) /
-                                            (Double (actionableCount) + totalRedundTargets)
+        let actedSquare = (comboActedTargets + totalRedundTargets) * (comboActedTargets + totalRedundTargets)
+        let numerator   = redundFact * hitSum * Double (actedSquare)
+        let denominator = Double (comboLen * (self.actionableCount + totalRedundTargets))
+        
+        self.matchScore  = numerator / denominator
+        
     }
     
     
@@ -117,7 +125,7 @@ class Combination_C   {
 
         for dtRel in self.dtRelL {
             for t in dtRel.targetHitL{
-                if t.markerType == .genomic {
+                if t.target.markerType == .genomic {
                     genomCount = genomCount + 1
 
                 } else {
@@ -140,47 +148,76 @@ class Combination_C   {
                 }
                 
             }
-            
         }
     }
     
     
-    // -------------------------------------------------------------------
-    // return True if the pair is redundant ie
-    // i.e. same target list with no difference of Hitscore > 3
- 
     func isPairRedundant (dtRel1: DTRelation_C, dtRel2: DTRelation_C) -> Bool{
-    
-        var same = (false, 0, 0, 0, 0)      // different target List no better one
-                                            // .1 .2 from dtRel1; .3.4 from dtRel2
+     
+        var Better1G = 0     // rel1 is better Genomic marker
+        var Better2G = 0     // rel2 is better Genomic marker
         
-        if ( dtRel1.targetHitL.count != dtRel2.targetHitL.count ){
-            // Not even the same number of targets
-            // one drug bring additional target
+        var Better1P = 0     // rel1  is better Pr/Rna marker
+        var Better2P = 0     // rel2  is better Pr/Rna marker
+        
+        var t1L = [String] ()
+        var t2L = [String] ()
+        
+        for t in dtRel1.targetHitL{
+            t1L.append (t.target.hugoName)
+        }
+        
+        for t in dtRel2.targetHitL{
+            t2L.append (t.target.hugoName)
+        }
+        
+        let set1:Set<String> = Set(t1L)
+        let set2:Set<String> = Set(t2L)
+        
+        let intersecSet = set1.intersection(set2)
+        
+        if (intersecSet.count < set1.count) &&  (intersecSet.count < set2.count) {
             return (false)
             
         } else {
-            same = dtRel1.sameTargetL (asInTL: dtRel2.targetHitL)
-            if ( same.0  == false ) {
-                // same number of targets but
-                // not same targets
-                return (false)
-                
-            } else {
-                // update the redundCounter in all cases
-                self.redundGenomCount = same.1 + same.3     // target 1 Genomic, Target 2 Proteomic
-                self.redundPrRnaCount = same.2 + same.4
+            for tName in intersecSet {
+                let pos1 = dtRel1.targetHitL.index( where: {  ($0.target.hugoName == tName)  })
+                let pos2 = dtRel2.targetHitL.index( where: {  ($0.target.hugoName == tName)  })
 
-                if ( (same.1 + same.2 != 0) && ( same.3 + same.4 != 0) ){
-                    // each target is sometimes better than the other
-                    return (false)
+                if (( dtRel2.targetHitL[pos2!].hitScore - dtRel1.targetHitL[pos1!].hitScore) > hitThreshold ) {
+                    if (dtRel2.targetHitL[pos2!].target.markerType == .genomic) {
+                        Better2G = Better2G + 1
+                    } else {
+                        Better2P = Better2P + 1
+                    }
+                    
+                } else  if (( dtRel1.targetHitL[pos1!].hitScore - dtRel2.targetHitL[pos2!].hitScore) > hitThreshold ) {
+                    if (dtRel2.targetHitL[pos2!].target.markerType == .genomic) {
+                        Better1G = Better1G + 1
+                    } else {
+                        Better1P = Better1P + 1
+                    }
                 }
+                
+                // update the redundCounter in all cases
+                if (dtRel2.targetHitL[pos2!].target.markerType == .genomic) {
+                    self.redundGenomCount = self.redundGenomCount + 1
+                } else {
+                    self.redundPrRnaCount = self.redundPrRnaCount + 1
+               }
+                    
+                
+            }
+            
+            // if a target is never better that teh other
+            // then does not allow teh redundancy
+            if ( (Better1G + Better1P) != 0  ) && ( (Better2G + Better2P) != 0) {
+                return (false)
+            } else {
+                return (true)
             }
         }
-        return (true)
     }
-        
-    
     
     //-------------------------------------------------
     //set the combo as redundant if 2 drugs are

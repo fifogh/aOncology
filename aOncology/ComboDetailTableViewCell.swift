@@ -1,23 +1,17 @@
 //
-//  Comb3TableViewCell.swift
+//  ComboDetailTableViewCell.swift
 //  aOncology
 //
-//  Created by Philippe-Faurie on 4/28/18.
+//  Created by Philippe-Faurie on 5/10/18.
 //  Copyright © 2018 Philippe-Faurie. All rights reserved.
 //
 
 import UIKit
 
-class Comb3TableViewCell: UITableViewCell {
+class ComboDetailTableViewCell: UITableViewCell {
 
-    @IBOutlet var drug1: UILabel!
-    @IBOutlet var drug2: UILabel!
-    @IBOutlet var drug3: UILabel!
-    
-    @IBOutlet var score: UILabel!
-    
-    @IBOutlet var warning: UIImageView!
-    
+    @IBOutlet var gene: UILabel!
+    @IBOutlet var hitScore: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

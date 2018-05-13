@@ -25,7 +25,8 @@ var  allKeyWordL  = protMarkerL + rnaMarkerL + keyWordAberL
 class Gene_C {
     var id         : Int           // Id instead of Name
     var hugoName   : String        // plain name
-    
+    var synoName   : String!       // Synonym
+
     init (geneId: Int, hugoName: String){
         self.id       = geneId
         self.hugoName = hugoName
@@ -44,11 +45,13 @@ class Target_C : Gene_C  {
     var markerType : MarkerType
     var keyword    : String?       // in case of protein, rna marker, or keyword
 
-     init (id: Int, hugoName: String, aberration: String){
+    init (id: Int, hugoName:String, aberration: String){
+
         self.aberDesc    = aberration      // might be erased
         self.aberDisp    = aberration      // keep this one for display
         self.actionable  = true
-        self.markerType  = MarkerType.genomic
+        self.markerType  = .genomic        // will be set after self.init
+
 
         super.init(geneId: id, hugoName: hugoName)
         self.setMarkerType()
@@ -56,81 +59,23 @@ class Target_C : Gene_C  {
     }
     
     func setMarkerType (){
-        if protMarkerL.contains(where: { ($0 == aberDesc) }) {
+        if ( protMarkerL.contains(where: { ($0 == aberDesc) }) == true) {
             self.markerType  = MarkerType.protein
             self.keyword     = aberDesc
             self.aberDesc    = ""
             
-        } else if rnaMarkerL.contains(where: { ($0 == aberDesc) }) {
-            self.markerType  = MarkerType.protein
+        } else if ( rnaMarkerL.contains(where: { ($0 == aberDesc) }) == true) {
+            self.markerType  = MarkerType.rna
             self.keyword     = aberDesc
             self.aberDesc    = ""
             
-        } else  if keyWordAberL.contains(where: { ($0 == aberDesc) }) {
+        } else  if ( keyWordAberL.contains(where: { ($0 == aberDesc) }) == true) {
             self.keyword     = aberDesc
             self.aberDesc    = ""
+        } else {
+           // nothing to do
         }
         
     }
-    
-}
-/*
-//------------------------------------------------------------------------------
-// TARGET Substitution
-class TargetSubs_C : Gene_C  {
-    
-    var subsName   : String
-    var mode       : Int
-    
-    init (id: Int, hugoName: String, subsName: String, mode: Int ){
-       
-        self.subsName = subsName
-        self.mode     = mode
-        super.init(geneId: id, hugoName: hugoName)
-    }
 }
 
-
-//------------------------------------------------------------------------------
-// DrugIc50 Class
-class DrugIc50_C : Drug_C {
-    
-    var Ic50    : Double    // Ic50 value
-    
-    init ( drugId: Int, drugName : String, allowed: Bool, _Ic50: Double){
-        self.Ic50 = _Ic50
-
-        super.init ( drugId: drugId, drugName: drugName, allowed: allowed)
-
-    }
-}
-
-//------------------------------------------------------------------------------
-// AberDrugL Class
-class AberDrugL_C  {
-    
-    var aberration : String           // Aberration Description
-    var drugIc50L  : [DrugIc50_C]!    // Ic50 value
-    
-    init (aberration: String){
-        self.aberration = aberration
-        drugIc50L  = [DrugIc50_C]()
-    }
-}
-
-//------------------------------------------------------------------------------
-// TargetDrug Class
-class TargetDrugs_C  {
-    
-    var gene : Gene_C                   // HugoName of the Gene Description
-    var aberDrugL  : [AberDrugL_C ]!    // list of aberration/ Drug lists
-    
-    init (gene: Gene_C){
-        self.gene = gene
-        self.aberDrugL = [AberDrugL_C ]()
-    }
-}
-
-*/
-
-// var targetDrugsL = [TargetDrugs_C]()

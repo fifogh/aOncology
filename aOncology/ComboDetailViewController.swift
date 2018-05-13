@@ -10,11 +10,20 @@ import UIKit
 
 class ComboDetailViewController: UIViewController {
     
-    var drugCount = 0    // number of drug to display
-    var row = 0
-     var str = ""
+    var drugCount = 0         // number of drug in teh combo
+    var row = 0               // what combo is that
+    var reducedCombo = false  // in manual mode a sublist of drugs might have been used
     
-    @IBOutlet var dtRelText: UITextView!
+    var actionableTargetCount = 0
+    
+    @IBOutlet var cureMatchScore: UILabel!
+    @IBOutlet var matchScore: UILabel!
+    
+    
+    @IBOutlet var ComboDetailTableView: UITableView!
+    
+    @IBOutlet weak var containerView: UIView!
+    @IBOutlet weak var graphView: GraphView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -30,51 +39,76 @@ class ComboDetailViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         
-        self.displayCombo()
+        
+        var comboToGraph = [Combination_C]()
+        var pointToGraph = 0
+        
+        self.matchScore.text     = String (format:"%.2f",comboL[drugCount-1][row].matchScore)
+        self.cureMatchScore.text = String (format:"%.2f",comboL[drugCount-1][row].strengthScore)
         
         
-    }
-    
-    
-    func displayCombo () {
-        let relList     : [DTRelation_C]
-        var redund      : Bool
-        var zeroHit     : Bool
-        var redundCount : Int
+        if (reducedCombo == false){
+            // use the combo as is
+            comboToGraph = comboL[drugCount-1]
+            pointToGraph = self.row              // where the sepcic combo is
         
-        relList      = comboL[drugCount-1][row].dtRelL
-        redund       = comboL[drugCount-1][row].redundancy
-        redundCount  = comboL[drugCount-1][row].redundPrRnaCount + comboL[drugCount-1][row].redundGenomCount
-        zeroHit      = comboL[drugCount-1][row].hasAZeroHit
-
-        str = "redundancy = " + String (redund) + "\nRedund Target # : " + String (redundCount) + "\nhasAZeroHit = " + String(zeroHit) + "\n\n"
-        str = str + "Strength : " + String (comboL[drugCount-1][row].strengthScore) + "\n"
-        str = str + "Match    : " + String (comboL[drugCount-1][row].matchScore) + "\n"
-
-        for rel in relList {
-            str = str + rel.drug.drugName + "\n"
+        } else {
+            // im manual mode, the list of drugs is reduced
+            // recalculate the combolist based on teh complete drug list
+            // and find the position of the combo in this combolist
             
-            let targetList = rel.targetHitL!
-            for t in  targetList {
-              
-                if (t.targetSubsL.count == 0) {
-                    str = str + "               " + t.hugoName + " hs= " + String(t.hitScore) + "\n"
-                } else {
-                    str = str + "               " + t.hugoName + " hs= " + String(t.hitScore) + "\n"
-                    for s in  t.targetSubsL {
-                        
-                        if (s.mode == SubsMode.indirect){
-                            str = str + "                     Via " + s.hugoName +  " Pathway  hs= " + String(t.hitScore) + "\n"
-                        } else {
-                            str = str + "                     Via " + s.hugoName + " hs= " + String(t.hitScore) + "\n"
-                        }
-                    }
-                }
+            let combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelL, taking: drugCount)
+            for elem in combosxx{
+                let combElem = Combination_C (dtRelList: elem,
+                                              actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count )
+                comboToGraph.append ( combElem )
             }
-         }
-        dtRelText.text = str
+            comboToGraph.sort(by: { ($0.strengthScore > $1.strengthScore) })
+            
+            // find the psoition of row(ie score) of teh reduced combo in the new combolist
+            let score = comboL[drugCount-1][row].strengthScore
+            var r = 0
+            while  ( (comboToGraph[r].strengthScore > score ) && (r < comboToGraph.count )){
+                r = r + 1
+            }
+            pointToGraph = r < comboToGraph.count ? r : r-1
+            
+        }
+        
+        // send the data to the graph
+        var r = 0
+        self.graphView.graphPoints.removeAll()
+        while ( (r < comboToGraph.count) && (comboToGraph[r].strengthScore > 0) ) {
+            self.graphView.graphPoints.append( Int (comboToGraph[r].strengthScore) )
+            r = r + 1
+        }
+        if ( r == 0) {
+            self.graphView.graphPoints.append(0)
+        }
+        
+        // what combo exactly it is
+        // so we can draw a point
+        self.graphView.thePoint = pointToGraph
+        
     }
-
+    
+    //------------------------------------
+    // Segue stuff
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toDebug" {
+            if let destinationVC = segue.destination as? DebugViewController{
+                
+                
+                destinationVC.row = self.row
+                destinationVC.drugCount = self.drugCount
+                
+                destinationVC.navigationItem.title = "DEBUG SCREEN"
+                
+            }
+        }
+    }
+    
+    
     /*
     // MARK: - Navigation
 
@@ -86,3 +120,48 @@ class ComboDetailViewController: UIViewController {
     */
 
 }
+
+//------------------------------------------------------------------------
+// TABLEVIEW DELEGATE
+extension ComboDetailViewController: UITableViewDataSource, UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        
+       return comboL[drugCount-1][row].dtRelL[section].drug.drugName
+    //return sectionL [section]
+
+    }
+    
+    func numberOfSections(in tableView: UITableView) -> Int {
+        // #warning Incomplete implementation, return the number of sections
+        
+        return self.drugCount
+        
+    }
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+       
+        return comboL[drugCount-1][row].dtRelL[section].targetHitL.count
+       // return items[section].count
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        
+       
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cellComboDetailId") as! ComboDetailTableViewCell
+        let geneName = comboL[drugCount-1][row].dtRelL[indexPath.section].targetHitL[indexPath.row].target.hugoName
+        let hitScore = comboL[drugCount-1][row].dtRelL[indexPath.section].targetHitL[indexPath.row].hitScore
+        
+        cell.gene.text = geneName
+        cell.hitScore.text = String(format:"%.2f", hitScore)
+ 
+        return cell
+    }
+    
+}
+
+
+
+

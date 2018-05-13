@@ -10,8 +10,10 @@ import UIKit
 
 class TargetTableViewCell: UITableViewCell {
 
-    @IBOutlet var gene: UILabel!
+    @IBOutlet var synoName: UILabel!
+    @IBOutlet var hugoName: UILabel!     // in case sysnonym was entered
     @IBOutlet var aberration: UILabel!
+    @IBOutlet var symbolImage: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()

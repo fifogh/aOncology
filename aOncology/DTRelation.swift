@@ -72,14 +72,14 @@ class DTRelation_C  {
             if let pos = t.targetPos (inL: asInTL) {
                 // compare the HitScores
                 if (( t.hitScore - asInTL[pos].hitScore) > hitThreshold ) {
-                    if (t.markerType == .genomic) {
+                    if (t.target.markerType == .genomic) {
                          iBetterG = iBetterG + 1
                     } else {
                          iBetterP = iBetterP + 1
                     }
                     
                 } else  if ((asInTL[pos].hitScore -  t.hitScore) > hitThreshold ) {
-                    if (t.markerType == .genomic) {
+                    if (t.target.markerType == .genomic) {
                         oBetterG = oBetterG + 1
                     } else {
                         oBetterP = oBetterP + 1
@@ -90,7 +90,7 @@ class DTRelation_C  {
             } else {
                 // differents targets
                 // counters are nin relevant
-                return (false, 0, 0, 0, 0)
+                return (false, iBetterG, iBetterP, oBetterG, oBetterP)
             }
         }
         
@@ -103,39 +103,55 @@ class DTRelation_C  {
 
 //------------------------------------------------------------------------------
 // CLASS TargetHit
-class TargetHit_C : Target_C  {
-    
+class TargetHit_C {
+ 
+    var target       : Target_C
     var mode         : SubsMode            // direct/indirect/semi_direct
-    
-    
+    var forceMode    : Bool                // Some Targets always calulate HitScore as genomic
     var Ic50         : Double?             // doesn not exist if Hit through Substitutions only
     var hitScore     : Double              // Calculated
+    
  
     var targetSubsL  : [TargetHit_C]       // List of targets substitution
     
-    
-    // full init with Ic50 - a direct Hit Exist - calculate Hitscore
-    init (id: Int, hugoName: String, aberration: String, mode: SubsMode, Ic50: Double){
-        
+    init (id: Int,  target: Target_C , mode: SubsMode , Ic50: Double  ) {
+
+        self.target      = target
         self.mode        = mode
+        self.forceMode   = false
+
         self.Ic50        = Ic50
         self.hitScore    = 0
         self.targetSubsL = [TargetHit_C]()
         
-        super.init (id: id, hugoName: hugoName, aberration: aberration)
-        
         self.hitScore   = self.calcHitScore()
-
+        self.forceMode  = self.voidProteinMarker()
     }
     
     // partial init without Ic50 - Hit is through target substitutions
-    init (id: Int, hugoName: String, aberration: String, mode: SubsMode){
+    init (id: Int, target: Target_C, mode: SubsMode){
+        
+        self.target      = target
         self.mode        = mode
+        self.forceMode   = false
+
         self.hitScore    = 0
         self.targetSubsL = [TargetHit_C]()
-        
-        super.init (id: id, hugoName: hugoName, aberration: aberration)
+        self.forceMode  = self.voidProteinMarker()
+
     }
+
+    // Except Rule X
+    func voidProteinMarker() -> Bool {
+        if ((target.hugoName == "CD274") || (target.hugoName == "ERBB2") ||
+            (target.hugoName == "AR")    || (target.hugoName == "ESR1")) {
+            
+            return (true)
+        } else {
+            return (false)
+        }
+    }
+    
     
     
     func ic50ToHit () -> Double {
@@ -169,8 +185,10 @@ class TargetHit_C : Target_C  {
             hitScore = 3*hitScore/4;
         }
         
+        
         // in case of protein Marker : half of the calculated score
-        if (( markerType == MarkerType.protein ) || ( markerType == MarkerType.rna)) {
+        // unless this marker is always counted as genomic
+        if ((( target.markerType == MarkerType.protein ) || ( target.markerType == MarkerType.rna)) && (forceMode == false)) {
             hitScore = hitScore / 2 ;
          }
         
@@ -213,7 +231,7 @@ class TargetHit_C : Target_C  {
     // it does not exist in the other list
     func targetPos (inL : [TargetHit_C]) -> Int? {
 
-         let pos = inL.index( where: {  ($0.hugoName == self.hugoName)  })
+         let pos = inL.index( where: {  ($0.target.hugoName == self.target.hugoName)  })
          return pos
      
     }
