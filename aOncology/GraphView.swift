@@ -30,9 +30,43 @@ private struct Constants {
     var graphPoints = [Int]()     // list of all points for the line
     var thePoint    = 0           // the specific point to draw
     
-    override func draw(_ rect: CGRect) {
+    
+    func giveColumnXPoint (column: Int) -> CGFloat {
         
-       
+        let margin = Constants.margin
+        let graphWidth = self.bounds.width  - margin * 2 - 4
+        
+        //Calculate the gap between points
+        let spacing = graphWidth / CGFloat(self.graphPoints.count - 1)
+        return CGFloat(column) * spacing + margin + 2
+    }
+    
+    func giveGraphXPoint (x: CGFloat) -> Int {
+        
+        let margin = Constants.margin
+        let graphWidth = self.bounds.width  - margin * 2 - 4
+        
+        //Calculate the gap between points
+        let spacing = graphWidth / CGFloat(self.graphPoints.count - 1)
+        return Int ((x - margin - 2) / spacing )
+    }
+    
+    
+    
+    func giveColumnYPoint (graphPoint: Int) -> CGFloat {
+        
+        let topBorder = Constants.topBorder
+        let bottomBorder = Constants.bottomBorder
+        let graphHeight = self.bounds.height  - topBorder - bottomBorder
+        let maxValue = graphPoints.max()!
+        
+        let y = CGFloat(graphPoint) / CGFloat(maxValue) * graphHeight
+        return graphHeight + topBorder - y // Flip the graph
+    }
+    
+    
+    
+    override func draw(_ rect: CGRect) {
         
         // -----------------------------------------------------
         // background gradiant + lines
@@ -42,7 +76,6 @@ private struct Constants {
         
         let width = rect.width
         let height = rect.height
-        
         
         path.addClip()
         
@@ -141,13 +174,14 @@ private struct Constants {
         
         //-----------------------------------------------------------
         //Draw the point corresponding to the combo on top of the graph stroke
+        /*
         var point = CGPoint(x: columnXPoint(self.thePoint), y: columnYPoint(graphPoints[self.thePoint]))
         point.x -= Constants.circleDiameter / 2
         point.y -= Constants.circleDiameter / 2
             
         let circle = UIBezierPath(ovalIn: CGRect(origin: point, size: CGSize(width: Constants.circleDiameter, height: Constants.circleDiameter)))
         circle.fill()
-        
+        */
         
         //-----------------------------------------------------------
         //Draw horizontal graph lines on the top of everything
@@ -164,12 +198,46 @@ private struct Constants {
         //bottom line
         linePath.move(to: CGPoint(x: margin, y:height - bottomBorder))
         linePath.addLine(to: CGPoint(x:  width - margin, y: height - bottomBorder))
+        
+        //y axis line
+        let moreY = CGFloat( 25 )
+        linePath.move(to: CGPoint(x : margin + 1, y: topBorder - moreY))
+        linePath.addLine(to: CGPoint(x : margin + 1, y: height - bottomBorder))
+        
+        
         let color = UIColor(white: 1.0, alpha: Constants.colorAlpha)
         color.setStroke()
         
         linePath.lineWidth = 1.0
         linePath.stroke()
         
+        
+        
+        //-----------------------------------------------------------
+        //add image for teh point
+     /*
+        let imageName = "Check_mark"
+        let image = UIImage(named: imageName)
+        let imageView = UIImageView(image: image!)
+        
+        imageView.frame = CGRect(x: columnXPoint(self.thePoint), y: columnYPoint(graphPoints[self.thePoint]), width: 15, height: 15)
+        self.addSubview(imageView)
+  */
     }
+    func displayPoint (imageView : UIImageView) {
+    
+        //find the "point" closest to column
+       /* print (x)
+        let maxX = self.bounds.width - Constants.margin
+        let newX = CGFloat(x) > maxX ? maxX : CGFloat(x)
+         */
+        let y = graphPoints[self.thePoint]
 
+        let newY = giveColumnYPoint (graphPoint :y )
+    
+        imageView.frame = CGRect(x: giveColumnXPoint (column: thePoint) - 7.5, y: newY - 7.5, width: 15, height: 15)
+        
+    }
+    
+ 
 }

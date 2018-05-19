@@ -13,7 +13,7 @@ enum MutBurden {case low, medium, high}
 enum MicroSat  {case low, high }
 
 var drugNumberL  = ["1", "2", "3"]            // picker view labels
-var mutBurdenL   = ["low", "medium", "high"]
+var mutBurdenL   = ["low ( < 6 )", "medium ( 6-20 )", "high( > 20 )"]
 var microsatIL   = ["low", "high"]
 
 var targetL   = [Target_C]()                 // Tragets list: all pathogenic
@@ -36,6 +36,7 @@ class ViewController: UIViewController  {
     var calcMode = CalcMode.auto
     
     var actionableTargetCount = 0
+    var drugDisabled = 0                        // manual toggle on drugs
     
     var MMRState = false
     var OctState = false
@@ -49,7 +50,8 @@ class ViewController: UIViewController  {
     
     @IBOutlet var newGeneName: SearchTextField!
     @IBOutlet var newAberrationName: SearchTextField!
-
+    @IBOutlet var newPathologyName: SearchTextField!
+    
     @IBOutlet var targetInputTableView: UITableView!
     @IBOutlet var drugListTableview: UITableView!
     @IBOutlet var combListTableview: UITableView!
@@ -143,7 +145,8 @@ class ViewController: UIViewController  {
                 
                 destinationVC.row = myIndexPath.row
                 destinationVC.drugCount = self.comboLen
-                destinationVC.reducedCombo = self.calcMode == .manual
+                //destinationVC.reducedCombo = self.calcMode == .manual
+                destinationVC.reducedCombo = self.drugDisabled != 0
                 destinationVC.actionableTargetCount = self.actionableTargetCount
     
                 destinationVC.navigationItem.title = "Combination Detail"
@@ -167,6 +170,15 @@ class ViewController: UIViewController  {
         newAberrationName.filterStrings(Array(allKeyWordL))
         newAberrationName.maxNumberOfResults = 5
         newAberrationName.minCharactersNumberToStartFiltering = 1
+        
+        var pathoSynL = [String]()
+        
+        for k in pathoSynLL{
+            pathoSynL = pathoSynL + k
+        }
+        newPathologyName.filterStrings(pathoSynL)
+        newPathologyName.maxNumberOfResults = 10
+        newPathologyName.minCharactersNumberToStartFiltering = 1
         
         
         // remove tab bar text asistant
@@ -466,7 +478,6 @@ extension ViewController: OptionButtonsDelegate {
         
         dtRelL.sort(by: { $0.drug.allowed != $1.drug.allowed ? $0.drug.allowed && !$1.drug.allowed : ($0.drug.drugName < $1.drug.drugName)  })
         //dtRelL.sort(by: { ($0.drug.drugName < $1.drug.drugName) })
-
         
         let index = IndexPath(row:0, section: 0)
         drugListTableview.reloadData()
@@ -593,6 +604,12 @@ extension ViewController: targetChangeDelegate {
     
     func buildAllCombos () {
         
+        let rules = Rules ()
+        rules.allRules ()
+        
+        // reset counter
+         self.drugDisabled = 0
+        
         //Take the non forbidden Drugs Only
         var dtRelLxx = [DTRelation_C] ()
         var dtRelLyy = [DTRelation_C] ()
@@ -601,6 +618,7 @@ extension ViewController: targetChangeDelegate {
                 dtRelLxx.append(dt)
             } else {
                 dtRelLyy.append(dt)
+                self.drugDisabled = self.drugDisabled + 1
             }
         }
         
@@ -616,7 +634,7 @@ extension ViewController: targetChangeDelegate {
                                               actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count ) 
                 comboL[drugNb-1].append ( combElem )
             }
-            comboL[drugNb-1].sort(by: { ($0.strengthScore > $1.strengthScore) })
+            comboL[drugNb-1].sort(by: { ($0.matchScore > $1.matchScore) })
             
             // remove zero scored combos
             var c = comboL[drugNb-1].last
@@ -646,12 +664,15 @@ extension ViewController: targetChangeDelegate {
             }
             dtRelL.removeAll()
             dtRelL = outDrugL
-            drugListTableview.reloadData()
             
             // generate all combos
             // and update counters
             self.buildAllCombos ()
             self.updateCounterDisplay()
+            
+            // after buildAll Combos coz rules may delete DTRelations
+            drugListTableview.reloadData()
+
             
         } else {
             

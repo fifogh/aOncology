@@ -25,7 +25,6 @@
 		6DC906BF2086B3C700286AB6 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906BD2086B3C700286AB6 /* Main.storyboard */; };
 		6DC906C12086B3C700286AB6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906C02086B3C700286AB6 /* Assets.xcassets */; };
 		6DC906C42086B3C700286AB6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906C22086B3C700286AB6 /* LaunchScreen.storyboard */; };
-		6DC906CC2086B4DB00286AB6 /* donnut.png in Resources */ = {isa = PBXBuildFile; fileRef = 6DC906CB2086B4DB00286AB6 /* donnut.png */; };
 		6DC906CE2086CA4500286AB6 /* drugGene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906CD2086CA4500286AB6 /* drugGene.swift */; };
 		6DC906D2208AFAC600286AB6 /* loginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906D1208AFAC600286AB6 /* loginViewController.swift */; };
 		6DDA5877209D496500208EF1 /* TSubData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDA5876209D496500208EF1 /* TSubData.swift */; };
@@ -35,6 +34,10 @@
 		6DDF863220A5403E00C120B1 /* ComboDetailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF863120A5403E00C120B1 /* ComboDetailTableViewCell.swift */; };
 		6DDF863420A67B5C00C120B1 /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF863320A67B5C00C120B1 /* DebugViewController.swift */; };
 		6DDF863620A7383400C120B1 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF863520A7383400C120B1 /* GraphView.swift */; };
+		6DF8BC4720AB994F00868C91 /* fda.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF8BC4620AB994F00868C91 /* fda.swift */; };
+		6DF8BC4920ACD22D00868C91 /* rules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF8BC4820ACD22D00868C91 /* rules.swift */; };
+		6DF8BC4D20AF9EEC00868C91 /* PathoSynData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF8BC4C20AF9EEC00868C91 /* PathoSynData.swift */; };
+		6DF8BC4F20AFA94600868C91 /* PathoDrugsData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF8BC4E20AFA94600868C91 /* PathoDrugsData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -58,7 +61,6 @@
 		6DC906C02086B3C700286AB6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		6DC906C32086B3C700286AB6 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		6DC906C52086B3C700286AB6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6DC906CB2086B4DB00286AB6 /* donnut.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = donnut.png; sourceTree = "<group>"; };
 		6DC906CD2086CA4500286AB6 /* drugGene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = drugGene.swift; sourceTree = "<group>"; };
 		6DC906D1208AFAC600286AB6 /* loginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = loginViewController.swift; sourceTree = "<group>"; };
 		6DDA5876209D496500208EF1 /* TSubData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TSubData.swift; sourceTree = "<group>"; };
@@ -68,6 +70,10 @@
 		6DDF863120A5403E00C120B1 /* ComboDetailTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboDetailTableViewCell.swift; sourceTree = "<group>"; };
 		6DDF863320A67B5C00C120B1 /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
 		6DDF863520A7383400C120B1 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		6DF8BC4620AB994F00868C91 /* fda.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fda.swift; sourceTree = "<group>"; };
+		6DF8BC4820ACD22D00868C91 /* rules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rules.swift; sourceTree = "<group>"; };
+		6DF8BC4C20AF9EEC00868C91 /* PathoSynData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathoSynData.swift; sourceTree = "<group>"; };
+		6DF8BC4E20AFA94600868C91 /* PathoDrugsData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathoDrugsData.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -121,10 +127,10 @@
 				6DC906BB2086B3C700286AB6 /* ViewController.swift */,
 				6DC906BD2086B3C700286AB6 /* Main.storyboard */,
 				6DDF863520A7383400C120B1 /* GraphView.swift */,
+				6DF8BC4820ACD22D00868C91 /* rules.swift */,
 				6DC906C02086B3C700286AB6 /* Assets.xcassets */,
 				6DC906C22086B3C700286AB6 /* LaunchScreen.storyboard */,
 				6DC906C52086B3C700286AB6 /* Info.plist */,
-				6DC906CB2086B4DB00286AB6 /* donnut.png */,
 			);
 			path = aOncology;
 			sourceTree = "<group>";
@@ -133,10 +139,13 @@
 			isa = PBXGroup;
 			children = (
 				6D27546620A7CFF800422405 /* SynoReduced.swift */,
+				6DF8BC4E20AFA94600868C91 /* PathoDrugsData.swift */,
 				6DDA587A20A282EE00208EF1 /* GeneData.swift */,
 				6DDF862F20A5165E00C120B1 /* GeneSynData.swift */,
 				6DDA5876209D496500208EF1 /* TSubData.swift */,
 				6D4F30A82093EE08006B946E /* DTRelData.swift */,
+				6DF8BC4620AB994F00868C91 /* fda.swift */,
+				6DF8BC4C20AF9EEC00868C91 /* PathoSynData.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -201,7 +210,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				6DC906C42086B3C700286AB6 /* LaunchScreen.storyboard in Resources */,
-				6DC906CC2086B4DB00286AB6 /* donnut.png in Resources */,
 				6DC906C12086B3C700286AB6 /* Assets.xcassets in Resources */,
 				6DC906BF2086B3C700286AB6 /* Main.storyboard in Resources */,
 			);
@@ -214,8 +222,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6DF8BC4720AB994F00868C91 /* fda.swift in Sources */,
 				6DC906D2208AFAC600286AB6 /* loginViewController.swift in Sources */,
 				6DC906BC2086B3C700286AB6 /* ViewController.swift in Sources */,
+				6DF8BC4920ACD22D00868C91 /* rules.swift in Sources */,
 				6DDF863420A67B5C00C120B1 /* DebugViewController.swift in Sources */,
 				6D4F30B52095249C006B946E /* Comb3TableViewCell.swift in Sources */,
 				6DC906CE2086CA4500286AB6 /* drugGene.swift in Sources */,
@@ -230,12 +240,14 @@
 				6D5DB41320914D7700C273FE /* Target_C.swift in Sources */,
 				6D4F30B720967D9F006B946E /* CombMaker.swift in Sources */,
 				6DA236A9209A596500D5E01F /* ComboDetailViewController.swift in Sources */,
+				6DF8BC4F20AFA94600868C91 /* PathoDrugsData.swift in Sources */,
 				6DC6A44C208D8A130014A080 /* DrugTableViewCell.swift in Sources */,
 				6DDF863020A5165E00C120B1 /* GeneSynData.swift in Sources */,
 				6DDF863620A7383400C120B1 /* GraphView.swift in Sources */,
 				6D4F30B320952485006B946E /* Comb2TableViewCell.swift in Sources */,
 				6DDF863220A5403E00C120B1 /* ComboDetailTableViewCell.swift in Sources */,
 				6D4F30B120952470006B946E /* Comb1TableViewCell.swift in Sources */,
+				6DF8BC4D20AF9EEC00868C91 /* PathoSynData.swift in Sources */,
 				6D4F30B920969D8E006B946E /* Combinations.swift in Sources */,
 				6DDA587920A27D1100208EF1 /* SearchTextField.swift in Sources */,
 			);

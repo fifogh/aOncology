@@ -10,10 +10,14 @@ import Foundation
 
 var list1 = Set(dicDTRelL.keys)                // Target - Drugs
 var list2 = Set(dicTSubsL.keys)                // Target - Target
+
+var pathoSynLL   = Array(pathoSynData.values)  // list of list ( per class ) of disesase
+var pathoClassL  = Array(pathoSynData.keys)
+
 var synGene = Array (synoGeneData.keys)
 
-//var geneDataList = synGene                        // All synonyms
-//var geneDataList = list1.union(list2)           // All
+//var geneDataList = synGene                    // All synonyms
+//var geneDataList = list1.union(list2)         // All
 
 var geneDataList = Array (list1.union(list2)) + synGene                       // All synonyms
 

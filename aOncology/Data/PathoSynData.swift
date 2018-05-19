@@ -1,5 +1,6 @@
- var pathoSynData = [ 
-
+ var pathoSynData = [
+    "toto"
+/*
   "Acute Lymphoblastic Leukemia ": [
             "Acute Lymphoblastic Leukemia",
             "acute lymphoblastic",
@@ -326,5 +327,6 @@
 
   "Vulvar Cancer": [
             "Vulva",
-            "Vulvar Cancer"] 
+            "Vulvar Cancer"]
+  */
 ]

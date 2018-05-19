@@ -18,12 +18,30 @@ class ComboDetailViewController: UIViewController {
     
     @IBOutlet var cureMatchScore: UILabel!
     @IBOutlet var matchScore: UILabel!
+    @IBOutlet var totalScored: UILabel!
     
+    @IBOutlet var pointImage: UIImageView!
     
     @IBOutlet var ComboDetailTableView: UITableView!
     
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var graphView: GraphView!
+    
+    @IBOutlet var graphSlider: UISlider!
+    
+    
+    // Slider Change
+    @IBAction func sliderChangeValue(_ sender: UISlider) {
+        
+        self.graphView.thePoint = Int(sender.value)
+        graphView.displayPoint (imageView : pointImage)
+        row = self.graphView.thePoint
+        self.setAll()
+         ComboDetailTableView.reloadData()
+    }
+    
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +56,12 @@ class ComboDetailViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
+      self.setAll()
         
+    }
+    
+    
+    func setAll () {
         
         var comboToGraph = [Combination_C]()
         var pointToGraph = 0
@@ -47,11 +70,11 @@ class ComboDetailViewController: UIViewController {
         self.cureMatchScore.text = String (format:"%.2f",comboL[drugCount-1][row].strengthScore)
         
         
-        if (reducedCombo == false){
+        if ( 0 != 1 /*reducedCombo == false*/){
             // use the combo as is
             comboToGraph = comboL[drugCount-1]
             pointToGraph = self.row              // where the sepcic combo is
-        
+            
         } else {
             // im manual mode, the list of drugs is reduced
             // recalculate the combolist based on teh complete drug list
@@ -71,6 +94,7 @@ class ComboDetailViewController: UIViewController {
             while  ( (comboToGraph[r].strengthScore > score ) && (r < comboToGraph.count )){
                 r = r + 1
             }
+            
             pointToGraph = r < comboToGraph.count ? r : r-1
             
         }
@@ -89,6 +113,16 @@ class ComboDetailViewController: UIViewController {
         // what combo exactly it is
         // so we can draw a point
         self.graphView.thePoint = pointToGraph
+        self.totalScored.text = String(graphView.graphPoints.count)
+        
+        // clean useless variables
+        comboToGraph.removeAll()
+        self.graphSlider.maximumValue = Float (self.graphView.graphPoints.count-1)
+
+        self.graphSlider.value = Float (pointToGraph)
+         graphView.displayPoint (imageView : pointImage)
+
+        
         
     }
     

@@ -285,9 +285,14 @@ open class SearchTextField: UITextField {
                 } else {
                     tableHeight = min((tableView.contentSize.height), (UIScreen.main.bounds.size.height - frame.origin.y - frame.height))
                 }
-                
+        
+                print ("\n")
+                print ((tableView.contentSize.height))
+                print ("\n")
+                    
                 if maxResultsListHeight > 0 {
                     tableHeight = min(tableHeight, CGFloat(maxResultsListHeight))
+             //       tableHeight = min(tableHeight, min (5, CGFloat(maxResultsListHeight)))
                 }
                 
                 // Set a bottom margin of 10p
@@ -555,10 +560,13 @@ extension SearchTextField: UITableViewDelegate, UITableViewDataSource {
         tableView.isHidden = !interactedWith || (filteredResults.count == 0)
         shadowView?.isHidden = !interactedWith || (filteredResults.count == 0)
         
+        
         if maxNumberOfResults > 0 {
+//            let toto = min(filteredResults.count, maxNumberOfResults)
+//            print (toto)
             return min(filteredResults.count, maxNumberOfResults)
         } else {
-            return filteredResults.count
+             return filteredResults.count
         }
     }
     
@@ -629,8 +637,10 @@ public struct SearchTextFieldTheme {
         self.subtitleFontColor = subtitleFontColor ?? fontColor
     }
     
+    
+    // Fifo change cell height 30 --> 40
     public static func lightTheme() -> SearchTextFieldTheme {
-        return SearchTextFieldTheme(cellHeight: 30, bgColor: UIColor (red: 1, green: 1, blue: 1, alpha: 0.6), borderColor: UIColor (red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0), separatorColor: UIColor.white/*clear*/, font: UIFont.systemFont(ofSize: 15), fontColor: UIColor.black)
+        return SearchTextFieldTheme(cellHeight: 40, bgColor: UIColor (red: 1, green: 1, blue: 1, alpha: 0.6), borderColor: UIColor (red: 0.9, green: 0.9, blue: 0.9, alpha: 1.0), separatorColor: UIColor.white/*clear*/, font: UIFont.systemFont(ofSize: 15), fontColor: UIColor.black)
     }
     
     public static func darkTheme() -> SearchTextFieldTheme {

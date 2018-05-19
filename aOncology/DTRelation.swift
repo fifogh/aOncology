@@ -141,7 +141,7 @@ class TargetHit_C {
 
     }
 
-    // Except Rule X
+    // Except Rule 13
     func voidProteinMarker() -> Bool {
         if ((target.hugoName == "CD274") || (target.hugoName == "ERBB2") ||
             (target.hugoName == "AR")    || (target.hugoName == "ESR1")) {
