@@ -10,12 +10,16 @@ import UIKit
 
 protocol OptionButtonsDelegate{
     func checkMarkTapped(at index:IndexPath)
+    func warningTapped  (at index:IndexPath)
 }
 
 class DrugTableViewCell: UITableViewCell {
 
     @IBOutlet var drugName: UILabel!
     @IBOutlet var checkMark: UIImageView!
+    @IBOutlet var approved: UIImageView!
+    @IBOutlet var warning: UIImageView!
+    
     @IBOutlet var checkButton: UIButton!
     
     var drugAllowed :Bool!
@@ -26,6 +30,12 @@ class DrugTableViewCell: UITableViewCell {
         self.delegate?.checkMarkTapped(at: indexPath)
 
     }
+    
+    @IBAction func warningTapped(_ sender: Any) {
+        self.delegate?.warningTapped(at: indexPath)
+        print ("Warning")
+    }
+    
     
     override func awakeFromNib() {
         super.awakeFromNib()

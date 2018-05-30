@@ -11,10 +11,17 @@ import UIKit
 class Comb3TableViewCell: UITableViewCell {
 
     @IBOutlet var drug1: UILabel!
+    @IBOutlet var approved1: UIImageView!
+
     @IBOutlet var drug2: UILabel!
+    @IBOutlet var approved2: UIImageView!
+
     @IBOutlet var drug3: UILabel!
+    @IBOutlet var approved3: UIImageView!
+
     
     @IBOutlet var score: UILabel!
+    @IBOutlet var matchScore: UILabel!
     
     @IBOutlet var warning: UIImageView!
     

@@ -62,7 +62,8 @@ class Rules {
     func halfHitScores (drugName: String) {
         if let drugPos = findDrug (drugName : drugName) {
             for tHit in dtRelL[drugPos].targetHitL {
-                tHit.hitScore = 0.5 * tHit.hitScore
+                tHit.hitScore = tHit.hitScoreRuled ? tHit.hitScore : 0.5 * tHit.hitScore
+                tHit.hitScoreRuled = true
             }
         }
     }

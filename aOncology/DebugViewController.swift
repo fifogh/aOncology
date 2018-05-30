@@ -70,15 +70,15 @@ class DebugViewController: UIViewController {
             for t in  targetList {
                 
                 if (t.targetSubsL.count == 0) {
-                    str = str + "               " + t.target.hugoName + " hs= " + String(t.hitScore) + "\n"
+                    str = str + "               " + t.target.hugoName + " hs= " + String(t.hitScore) +  " Ic50 = " + String(t.Ic50!) + "\n"
                 } else {
-                    str = str + "               " + t.target.hugoName + " hs= " + String(t.hitScore) + "\n"
+                    str = str + "               " + t.target.hugoName + " hs= " + String(t.hitScore) +   "\n"
                     for s in  t.targetSubsL {
                         
                         if (s.mode == SubsMode.indirect){
-                            str = str + "                     Via " + s.target.hugoName +  " Pathway  hs= " + String(t.hitScore) + "\n"
+                            str = str + "                     Via " + s.target.hugoName +  " Pathway  hs= " + String(s.hitScore) +  " Ic50 = " + String(s.Ic50!) + "\n"
                         } else {
-                            str = str + "                     Via " + s.target.hugoName + " hs= " + String(t.hitScore) + "\n"
+                            str = str + "                     Via " + s.target.hugoName + " hs= " + String(s.hitScore) +  " Ic50 = " + String(s.Ic50!) + "\n"
                         }
                     }
                 }

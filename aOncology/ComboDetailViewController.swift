@@ -14,11 +14,12 @@ class ComboDetailViewController: UIViewController {
     var row = 0               // what combo is that
     var reducedCombo = false  // in manual mode a sublist of drugs might have been used
     
-    var actionableTargetCount = 0
-    
     @IBOutlet var cureMatchScore: UILabel!
     @IBOutlet var matchScore: UILabel!
     @IBOutlet var totalScored: UILabel!
+    
+    @IBOutlet var warningImage: UIImageView!
+    @IBOutlet var warningLabel: UILabel!
     
     @IBOutlet var pointImage: UIImageView!
     
@@ -37,7 +38,8 @@ class ComboDetailViewController: UIViewController {
         graphView.displayPoint (imageView : pointImage)
         row = self.graphView.thePoint
         self.setAll()
-         ComboDetailTableView.reloadData()
+        self.checkWarning()
+        ComboDetailTableView.reloadData()
     }
     
     
@@ -56,10 +58,15 @@ class ComboDetailViewController: UIViewController {
     
     
     override func viewWillAppear(_ animated: Bool) {
-      self.setAll()
+        self.setAll()
+        self.checkWarning()
         
     }
     
+    func checkWarning () {
+        warningImage.isHidden = comboL[drugCount-1][row].redundancy == false
+        warningLabel.isHidden = comboL[drugCount-1][row].redundancy == false
+    }
     
     func setAll () {
         
@@ -69,11 +76,12 @@ class ComboDetailViewController: UIViewController {
         self.matchScore.text     = String (format:"%.2f",comboL[drugCount-1][row].matchScore)
         self.cureMatchScore.text = String (format:"%.2f",comboL[drugCount-1][row].strengthScore)
         
-        
+        comboToGraph = comboL[drugCount-1]
+        pointToGraph = self.row              // where the sepcic combo is
+        /*
         if ( 0 != 1 /*reducedCombo == false*/){
             // use the combo as is
-            comboToGraph = comboL[drugCount-1]
-            pointToGraph = self.row              // where the sepcic combo is
+          
             
         } else {
             // im manual mode, the list of drugs is reduced
@@ -82,7 +90,7 @@ class ComboDetailViewController: UIViewController {
             
             let combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelL, taking: drugCount)
             for elem in combosxx{
-                let combElem = Combination_C (dtRelList: elem,
+                let combElem = Combination_C (dtRelList: elem, filter : calcMode == .auto
                                               actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count )
                 comboToGraph.append ( combElem )
             }
@@ -98,6 +106,7 @@ class ComboDetailViewController: UIViewController {
             pointToGraph = r < comboToGraph.count ? r : r-1
             
         }
+        */
         
         // send the data to the graph
         var r = 0
@@ -161,8 +170,13 @@ extension ComboDetailViewController: UITableViewDataSource, UITableViewDelegate{
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         
-       return comboL[drugCount-1][row].dtRelL[section].drug.drugName
-    //return sectionL [section]
+        var title = comboL[drugCount-1][row].dtRelL[section].drug.drugName
+        
+        if (comboL[drugCount-1][row].dtRelL[section].drug.approved == 1) {
+            title = title  +  " (*)"
+        }
+        return title
+//        return comboL[drugCount-1][row].dtRelL[section].drug.drugName
 
     }
     

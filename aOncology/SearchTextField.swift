@@ -286,9 +286,6 @@ open class SearchTextField: UITextField {
                     tableHeight = min((tableView.contentSize.height), (UIScreen.main.bounds.size.height - frame.origin.y - frame.height))
                 }
         
-                print ("\n")
-                print ((tableView.contentSize.height))
-                print ("\n")
                     
                 if maxResultsListHeight > 0 {
                     tableHeight = min(tableHeight, CGFloat(maxResultsListHeight))
@@ -562,8 +559,6 @@ extension SearchTextField: UITableViewDelegate, UITableViewDataSource {
         
         
         if maxNumberOfResults > 0 {
-//            let toto = min(filteredResults.count, maxNumberOfResults)
-//            print (toto)
             return min(filteredResults.count, maxNumberOfResults)
         } else {
              return filteredResults.count

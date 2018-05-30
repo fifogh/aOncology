@@ -24,13 +24,34 @@ class Drug_C {
     var id   : Int           // Id instead of Name
     var drugName : String    // plain name
     var allowed  : Bool      // user selection yes/no
+    var approved : Int       // approved with diagnosis
+    var blackBox : Bool      // has a FDA black Box Warning
     
     
     init (drugId: Int, drugName: String, allowed: Bool){
         self.id       = drugId
         self.drugName = drugName
         self.allowed  = allowed
+        self.approved = 0
+        self.blackBox = false
     }
+    
+    func markApproved ( pathoClass: String ){
+        
+        self.approved = 0
+        
+        if  let drugL = pathoDrugsData [pathoClass] {
+            if ( drugL.index (where: { $0 == self.drugName  }) != nil ){
+                self.approved = 1
+            }
+        }
+        
+        if ( bbWarningL.index (where: { $0 == self.drugName  }) != nil ){
+            self.blackBox = true
+        }
+        
+    }
+    
 }
 
 
@@ -105,11 +126,12 @@ class DTRelation_C  {
 // CLASS TargetHit
 class TargetHit_C {
  
-    var target       : Target_C
-    var mode         : SubsMode            // direct/indirect/semi_direct
-    var forceMode    : Bool                // Some Targets always calulate HitScore as genomic
-    var Ic50         : Double?             // doesn not exist if Hit through Substitutions only
-    var hitScore     : Double              // Calculated
+    var target        : Target_C
+    var mode          : SubsMode            // direct/indirect/semi_direct
+    var forceMode     : Bool                // Some Targets always calulate HitScore as genomic
+    var Ic50          : Double?             // doesn not exist if Hit through Substitutions only
+    var hitScore      : Double              // Calculated
+    var hitScoreRuled : Bool                // hitScore has been affected by a special rule
     
  
     var targetSubsL  : [TargetHit_C]       // List of targets substitution
@@ -120,9 +142,10 @@ class TargetHit_C {
         self.mode        = mode
         self.forceMode   = false
 
-        self.Ic50        = Ic50
-        self.hitScore    = 0
-        self.targetSubsL = [TargetHit_C]()
+        self.Ic50          = Ic50
+        self.hitScore      = 0
+        self.hitScoreRuled = false
+        self.targetSubsL   = [TargetHit_C]()
         
         self.hitScore   = self.calcHitScore()
         self.forceMode  = self.voidProteinMarker()
@@ -136,6 +159,8 @@ class TargetHit_C {
         self.forceMode   = false
 
         self.hitScore    = 0
+        self.hitScoreRuled = false
+
         self.targetSubsL = [TargetHit_C]()
         self.forceMode  = self.voidProteinMarker()
 
@@ -165,35 +190,26 @@ class TargetHit_C {
         ret = 0.981242 * fnIC50 - 2.384326;
         return (ret)
     }
+
     
-    func calcHitScore () -> Double {
-        
-        //-------------------
-        // base formula
-        
-        if (Ic50! < 51){
-            hitScore = 5;
-            
-        } else if (Ic50! < 501){
-            hitScore = self.ic50ToHit();
-        } else {
-            hitScore = 0;
-        }
-        
+    func isIndirectHitScore ()  {
         // Only get 75% of score for Pathways ( indirect )
         if (mode == SubsMode.indirect) {
             hitScore = 3*hitScore/4;
         }
-        
+    }
+    
+     func isProteinHitScore ()  {
         
         // in case of protein Marker : half of the calculated score
         // unless this marker is always counted as genomic
-        if ((( target.markerType == MarkerType.protein ) || ( target.markerType == MarkerType.rna)) && (forceMode == false)) {
+        if ((( target.markerType == MarkerType.protein ) ||
+             ( target.markerType == MarkerType.rna)) && (forceMode == false)) {
             hitScore = hitScore / 2 ;
-         }
-        
-        
-        // house cleaning
+        }
+    }
+    
+    func cleanHitScore ()  {
         if ( hitScore < 0 ) {
             print ("!!!! Warning Neg hit \( hitScore ) !!!!\n");
             hitScore = 0
@@ -202,7 +218,32 @@ class TargetHit_C {
             print ("!!!! Warning >5 hit \( hitScore ) !!!!\n");
             hitScore = 5
         }
-
+    }
+    
+    func calcHitScore () -> Double {
+        
+        //-------------------
+        // base formula
+        hitScore = 0;
+        
+        // substitution no drug hit
+        if (Ic50 == nil){
+           return hitScore
+        }
+        
+        
+        if (Ic50! < 51){
+            hitScore = 5;
+        } else if (Ic50! < 501){
+            hitScore = self.ic50ToHit();
+        } else {
+            hitScore = 0;
+        }
+        
+     //self.isIndirectHitScore()
+        self.isProteinHitScore()
+        self.cleanHitScore()
+        
         return (hitScore)
     }
     
@@ -222,7 +263,26 @@ class TargetHit_C {
             }
             self.hitScore = hitSum / Double (targetSubsL.count)
         }
-
+        
+        self.isIndirectHitScore()
+        self.isProteinHitScore()
+    }
+    
+    //-------------------------------------------------------------------------
+    // Hitscore calculation
+    func calcTreeHitScore (targetHit: TargetHit_C, mode : SubsMode) -> Double {
+        if (targetHit.mode == .direct) {
+            return targetHit.calcHitScore()
+            
+        } else {
+            var sHit = 0.0
+            for tSubs in targetHit.targetSubsL {
+                sHit += calcTreeHitScore (targetHit: tSubs, mode: tSubs.mode)
+            }
+            sHit = sHit / Double(targetHit.targetSubsL.count)
+            return sHit
+        }
+        
     }
     
     //-------------------------------------------------------

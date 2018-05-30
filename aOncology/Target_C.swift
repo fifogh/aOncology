@@ -12,9 +12,9 @@ import Foundation
 enum MarkerType :Int {case genomic, protein, rna }         // Markers Types
 
 
-var  protMarkerL  = [ "positive","negative","pos","neg", "+","-","high","low","hi","lo" ]
-var  rnaMarkerL   = [ "overexpr", "over"]
-var  keyWordAberL = [ "gain", "amp", "ampl", "amplification","loss" ]
+var  protMarkerL  = [ "Positive","Negative","Pos","Neg", "+","-","High","Low", ]
+var  rnaMarkerL   = [ "Overexpression", "Over"]
+var  keyWordAberL = [ "Gain", "Amp", "Ampl", "Amplification","Loss" ]
 
 var  allKeyWordL  = protMarkerL + rnaMarkerL + keyWordAberL
 

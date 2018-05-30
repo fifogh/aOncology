@@ -11,10 +11,10 @@ import UIKit
 class Comb1TableViewCell: UITableViewCell {
 
     @IBOutlet var drug1: UILabel!
-    
     @IBOutlet var score: UILabel!
-    
+    @IBOutlet var matchScore: UILabel!
     @IBOutlet var warning: UIImageView!
+    @IBOutlet var approved: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -8,34 +8,43 @@
 
 import UIKit
 
-enum CalcMode  {case auto, manual}
-enum MutBurden {case low, medium, high}
-enum MicroSat  {case low, high }
+enum CalcMode  {case auto,  manual}
+enum SortMode  {case score, onLabel}
+enum MutBurden {case unknown, low, medium, high}
+enum MicroSat  {case unknown, low, high }
 
-var drugNumberL  = ["1", "2", "3"]            // picker view labels
-var mutBurdenL   = ["low ( < 6 )", "medium ( 6-20 )", "high( > 20 )"]
-var microsatIL   = ["low", "high"]
+
+ // picker view labels
+var drugNumberL  = ["1", "2", "3"]
+
+var mutBurdenL   = ["Unknown", "low ( < 6 /Mb )", "medium ( 6-20 /Mb )", "high( > 20 /Mb )"]
+var microsatIL   = ["Unknown", "low", "high"]
 
 var targetL   = [Target_C]()                 // Tragets list: all pathogenic
 var dtRelL    = [DTRelation_C] ()            // Drug-Target relation list
+var caseL     = [Case_C]()                   // Cases List
+
 
 var combo1L   = [Combination_C]()           // 1 drug Combos
 var combo2L   = [Combination_C]()           // 2 drug Combos
 var combo3L   = [Combination_C]()           // 3 drug Combos
 var comboL    = [combo1L,combo2L,combo3L]   // list( 1d, 2d, 3d)  of combinations list
+var pathoClass = ""                         // Pathology Class
 
 var noDrugNameL  = [String]()               // Forbidden drugs list to remember
 var myCombMaker  = CombMaker_C ()           // Combinatory utilitary
 
 var targetIndex  = IndexPath ()
 
+let rules = Rules ()                        // to acces to rules
+
 class ViewController: UIViewController  {
     
     var comboLen = 1
     var loggedIn : Bool!
     var calcMode = CalcMode.auto
-    
-    var actionableTargetCount = 0
+    var sortMode = SortMode.score
+
     var drugDisabled = 0                        // manual toggle on drugs
     
     var MMRState = false
@@ -48,9 +57,14 @@ class ViewController: UIViewController  {
 
     @IBOutlet var folderImage: UIImageView!
     
+    @IBOutlet var newCaseID: UILabel!
+    @IBOutlet var newMemo: UITextField!
+    @IBOutlet var newAge: UITextField!
+
     @IBOutlet var newGeneName: SearchTextField!
     @IBOutlet var newAberrationName: SearchTextField!
     @IBOutlet var newPathologyName: SearchTextField!
+    
     
     @IBOutlet var targetInputTableView: UITableView!
     @IBOutlet var drugListTableview: UITableView!
@@ -67,7 +81,38 @@ class ViewController: UIViewController  {
     @IBOutlet var OctrCheckImage: UIImageView!
     
     
+    //------------------------------------
+    // Save case
     
+    @IBAction func saveTapped(_ sender: Any) {
+        let newCase = Case_C (caseId: "", nickName: newMemo.text!, age: newAge.text!, targetL : targetL , diagnosis: self.newPathologyName.text!)
+        
+        newCase.loadCases()
+        
+        caseL.append ( newCase )
+        
+        newCaseID.text = newCase.caseId
+        
+        let theTitle = "Case " + newCaseID.text!
+        let alert = UIAlertController(title: theTitle, message: "saved", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "ok", style: .default, handler: nil))
+        self.present(alert, animated: true)
+        
+        newCase.saveCases()
+    }
+    
+    //------------------------------------
+    // Clear All
+    
+    @IBAction func resetTapped(_ sender: Any) {
+        targetL.removeAll()
+        self.subTarget ()
+        targetInputTableView.reloadData()
+        newPathologyName.text = ""
+        newAge.text    = ""
+        newMemo.text   = ""
+        newCaseID.text = ""
+    }
     
     //------------------------------------
     // MMR Status
@@ -115,9 +160,27 @@ class ViewController: UIViewController  {
             }
         }
         
+        dtRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
+            $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
+            ($0.drug.drugName < $1.drug.drugName)  })
+        
         drugListTableview.reloadData()
         buildAllCombos ()
         updateCounterDisplay()
+    }
+    
+    
+    @IBAction func comboSortChange(_ sender: UISegmentedControl) {
+        let index = sender.selectedSegmentIndex
+        
+        if (index == 0) {
+            // Score
+            sortMode = .score
+        } else {
+            sortMode = .onLabel
+        }
+        
+        self.buildAllCombos()
     }
     
     //------------------------------------
@@ -147,17 +210,27 @@ class ViewController: UIViewController  {
                 destinationVC.drugCount = self.comboLen
                 //destinationVC.reducedCombo = self.calcMode == .manual
                 destinationVC.reducedCombo = self.drugDisabled != 0
-                destinationVC.actionableTargetCount = self.actionableTargetCount
-    
+ 
                 destinationVC.navigationItem.title = "Combination Detail"
 
             }
+        } else if segue.identifier == "caseListSegue" {
+            
+            if let destinationVC = segue.destination as? CaseViewController {
+                destinationVC.caseSelectDelegate = self
+            }
+ 
         }
     }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.navigationItem.rightBarButtonItem?.isEnabled = false
+        
+        myGeneDrug.newGeneConfigDelegate  = self
+        
+        
         loggedIn = false
         // Do any additional setup after loading the view, typically from a nib.
         
@@ -171,14 +244,9 @@ class ViewController: UIViewController  {
         newAberrationName.maxNumberOfResults = 5
         newAberrationName.minCharactersNumberToStartFiltering = 1
         
-        var pathoSynL = [String]()
-        
-        for k in pathoSynLL{
-            pathoSynL = pathoSynL + k
-        }
-        newPathologyName.filterStrings(pathoSynL)
+        newPathologyName.filterStrings(Array(pathoSynL))
         newPathologyName.maxNumberOfResults = 10
-        newPathologyName.minCharactersNumberToStartFiltering = 1
+        newPathologyName.minCharactersNumberToStartFiltering = 2
         
         
         // remove tab bar text asistant
@@ -190,7 +258,9 @@ class ViewController: UIViewController  {
         item.leadingBarButtonGroups = []
         item.trailingBarButtonGroups = []
         
-
+        item  = newPathologyName.inputAssistantItem
+        item.leadingBarButtonGroups = []
+        item.trailingBarButtonGroups = []
        
      }
 
@@ -228,7 +298,6 @@ class ViewController: UIViewController  {
                 trimmedAber = ""
             }
             
-         //   let target : Target_C = Target_C (id: 0, hugoName: trimmedGene, aberration: trimmedAber )
             
             if (synoGeneData[trimmedGene] != nil){
                 theHugoName = synoGeneData[trimmedGene]!
@@ -339,7 +408,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 cell.hugoName.textColor = UIColor.black
             }
             
-            if (targetL[indexPath.row].markerType == .protein ) {
+            if (targetL[indexPath.row].markerType == .protein ) || (targetL[indexPath.row].markerType == .rna ) {
                 cell.symbolImage.image = UIImage ( named: "letterP" )
                 cell.symbolImage.isHidden = false
             } else {
@@ -357,12 +426,21 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             
             if (dtRelL[indexPath.row].drug.allowed == false ) {
                 cell.checkMark.alpha = 0.3
+                cell.approved.alpha  = 0.3
+                cell.warning.alpha   = 0.3
+                
                 cell.drugName.textColor = UIColor.lightGray
                 
             } else {
                 cell.checkMark.alpha = 1.0
+                cell.approved.alpha  = 1.0
+                cell.warning.alpha   = 1.0
+
                 cell.drugName.textColor = UIColor.black
             }
+            
+            cell.approved.isHidden = dtRelL[indexPath.row].drug.approved == 0
+            cell.warning.isHidden = dtRelL[indexPath.row].drug.blackBox == false
             
             return cell
             
@@ -370,16 +448,20 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
             //Combo
             
             let formatter = NumberFormatter()
+            let formatter2 = NumberFormatter()
             formatter.maximumFractionDigits = 1
-            
+            formatter2.maximumFractionDigits = 2
+
             if (self.comboLen == 1 ){
                 
                 let cell = tableView.dequeueReusableCell(withIdentifier: "cellComb1Id") as! Comb1TableViewCell
                 let drug1Name = comboL[0][indexPath.row].dtRelL[0].drug.drugName
                 
-                let score     = formatter.string (from: comboL[0][indexPath.row].strengthScore as NSNumber )
+                let score       = formatter.string (from: comboL[0][indexPath.row].strengthScore as NSNumber )
+                let matchScore  = formatter2.string(from: comboL[0][indexPath.row].matchScore as NSNumber )
                 cell.drug1.text = drug1Name
                 cell.score.text = score
+                cell.matchScore.text = matchScore
 
                 //Warning Image
                 if (comboL[0][indexPath.row].redundancy == true) {
@@ -387,6 +469,11 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 } else {
                     cell.warning.isHidden = true
                 }
+                
+                // On Compendia image, blackBox Warning
+                cell.approved.isHidden = comboL[0][indexPath.row].dtRelL[0].drug.approved == 0
+                cell.warning.isHidden  = comboL[0][indexPath.row].hasWarning == false
+
                 return cell
                 
             } else if (self.comboLen == 2) {
@@ -395,10 +482,14 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 let drug1Name = comboL[1][indexPath.row].dtRelL[0].drug.drugName
                 let drug2Name = comboL[1][indexPath.row].dtRelL[1].drug.drugName
                 
-                let score = formatter.string (from: comboL[1][indexPath.row].strengthScore as NSNumber )
+                let score      = formatter.string (from: comboL[1][indexPath.row].strengthScore as NSNumber )
+                let matchScore = formatter2.string(from: comboL[1][indexPath.row].matchScore as NSNumber )
+
                 cell.drug1.text = drug1Name
                 cell.drug2.text = drug2Name
                 cell.score.text = score
+                cell.matchScore.text = matchScore
+
                 
                 //Warning Image
                 if (comboL[1][indexPath.row].redundancy == true) {
@@ -406,6 +497,13 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 } else {
                     cell.warning.isHidden = true
                 }
+                
+                // On Compendia image
+                cell.approved1.isHidden = comboL[1][indexPath.row].dtRelL[0].drug.approved == 0
+                cell.approved2.isHidden = comboL[1][indexPath.row].dtRelL[1].drug.approved == 0
+                cell.warning.isHidden   = comboL[1][indexPath.row].hasWarning == false
+
+
                 return cell
                 
             } else {
@@ -415,11 +513,15 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 let drug2Name = comboL[2][indexPath.row].dtRelL[1].drug.drugName
                 let drug3Name = comboL[2][indexPath.row].dtRelL[2].drug.drugName
                 
-                let score = formatter.string (from: comboL[2][indexPath.row].strengthScore as NSNumber )
+                let score      = formatter.string (from: comboL[2][indexPath.row].strengthScore as NSNumber )
+                let matchScore = formatter2.string(from: comboL[2][indexPath.row].matchScore as NSNumber )
+
                 cell.drug1.text = drug1Name
                 cell.drug2.text = drug2Name
                 cell.drug3.text = drug3Name
                 cell.score.text = score
+                cell.matchScore.text = matchScore
+
                 
                 //Warning Image
                 if (comboL[2][indexPath.row].redundancy == true) {
@@ -427,6 +529,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
                 } else {
                     cell.warning.isHidden = true
                 }
+                // On Compendia image
+                cell.approved1.isHidden = comboL[2][indexPath.row].dtRelL[0].drug.approved == 0
+                cell.approved2.isHidden = comboL[2][indexPath.row].dtRelL[1].drug.approved == 0
+                cell.approved3.isHidden = comboL[2][indexPath.row].dtRelL[2].drug.approved == 0
+                cell.warning.isHidden   = comboL[2][indexPath.row].hasWarning == false
+
                 return cell
            }
         }
@@ -435,12 +543,7 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate{
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             if (tableView == targetInputTableView){
-                
-                // keep actionable counter up to date
-                if (targetL[indexPath.row].actionable == true){
-                    actionableTargetCount = actionableTargetCount - 1
-                }
-                
+            
                 targetL.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .fade)
                 self.subTarget ()
@@ -476,7 +579,9 @@ extension ViewController: OptionButtonsDelegate {
             cell.checkMark.alpha = 1.0
         }
         
-        dtRelL.sort(by: { $0.drug.allowed != $1.drug.allowed ? $0.drug.allowed && !$1.drug.allowed : ($0.drug.drugName < $1.drug.drugName)  })
+        dtRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
+            $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
+            ($0.drug.drugName < $1.drug.drugName)  })
         //dtRelL.sort(by: { ($0.drug.drugName < $1.drug.drugName) })
         
         let index = IndexPath(row:0, section: 0)
@@ -488,21 +593,77 @@ extension ViewController: OptionButtonsDelegate {
         self.buildAllCombos ()
         self.updateCounterDisplay()
     }
+    
+    func warningTapped(at index:IndexPath){
+        
+        // a drug has been added or removed
+        //let cell = drugListTableview.cellForRow(at: index) as! DrugTableViewCell
+        //let label = cell.drugName
+        
+        let dName = dtRelL[index.row].drug.drugName
+        let msg =  "Black Box Warning for " + dName
+        
+        let alert = UIAlertController(title: msg, message: drugLabels [dName]!, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "ok", style: .default, handler: nil))
+        self.present(alert, animated: true)
+
+    }
+    
 }
 
 
 //------------------------------------------------------------------------
 // TEXTFIELD DELEGATE
+
 extension ViewController: UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder();
         if (textField == newGeneName) {
             self.newGeneName = textField as! SearchTextField
-        } else  {
+            
+        } else if (textField == newAberrationName)  {
             self.newAberrationName = textField as! SearchTextField
+            
+        } else if (textField == newPathologyName) {
+            
+            self.newPathologyName = textField as! SearchTextField
+            changePathologyClass (pathoName : self.newPathologyName.text!)
         }
+        
         return true;
+    }
+
+
+   func textFieldDidEndEditing(_ textField: UITextField) {
+      if (textField == newPathologyName) {
+        
+          self.newPathologyName = textField as! SearchTextField
+          changePathologyClass (pathoName : self.newPathologyName.text!)
+      }
+    }
+
+    
+    func changePathologyClass (pathoName : String) {
+        
+        if ( pathoSynData [pathoName] != nil ){
+            pathoClass = pathoSynData [pathoName]!
+        } else {
+            pathoClass = ""
+        }
+        print (pathoClass)
+        
+        for d in dtRelL {
+            d.drug.markApproved(pathoClass: pathoClass)
+        }
+        
+        dtRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
+            $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
+            ($0.drug.drugName < $1.drug.drugName)  })
+        
+        self.drugListTableview.reloadData()
+        self.combListTableview.reloadData()
+        
     }
 }
 
@@ -517,12 +678,16 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         if (pickerView.tag == 2){
-            return 2
+            return microsatIL.count
+            
+        } else if (pickerView.tag == 1){
+            return mutBurdenL.count
+            
         } else {
+            // drug # 
             return 3
         }
     }
-    
     
     //---------------------------------------------------
     // Picker row display
@@ -557,24 +722,26 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
 
         // no need to rebuild combos
         // they all exist but need to adjust counters
-        // pickerLabel?.text = String (drugNumberL [row])
         
         if (pickerView.tag == 0){
             // Number of drugs
             comboLen = row + 1
-            combListTableview.reloadData()
+            reArrangeAllCombos ()
             updateCounterDisplay()
             
         } else if (pickerView.tag == 1){
             // Mutation burden
             switch row {
             case 0 :
-                self.mutBurden = MutBurden.low
+                self.mutBurden = MutBurden.unknown
                 break
             case 1 :
-                self.mutBurden = MutBurden.medium
+                self.mutBurden = MutBurden.low
                 break
             case 2 :
+                self.mutBurden = MutBurden.medium
+                break
+            case 3 :
                 self.mutBurden = MutBurden.high
                 break
                 
@@ -586,9 +753,12 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
             // Microsatellite status
             switch row {
             case 0 :
-                self.microSat = MicroSat.low
+                self.microSat = MicroSat.unknown
                 break
             case 1 :
+                self.microSat = MicroSat.low
+                break
+            case 2 :
                 self.microSat = MicroSat.high
                
             default:
@@ -602,10 +772,61 @@ extension ViewController:  UIPickerViewDataSource, UIPickerViewDelegate {
 // GENE ADDED DELEGATE
 extension ViewController: targetChangeDelegate {
     
-    func buildAllCombos () {
+    
+    //------------------------
+    // reArrange the combos
+    func reArrangeAllCombos () {
         
-        let rules = Rules ()
+        // reArrange combos 1d, 2d, &3d
+        var drugNb = 1
+        while (drugNb < 4){
+            // re-sort
+            if ( sortMode == .onLabel) {
+                comboL[drugNb-1].sort(by: { ($0.approvedCount > $1.approvedCount) })
+            } else {
+                comboL[drugNb-1].sort(by: { ($0.matchScore > $1.matchScore) })
+            }
+            drugNb += 1
+        }
+        
+        // redisplay the combo
+        combListTableview.reloadData()
+    }
+    
+    //------------------------
+    // Recount the markers
+    func markersCount () ->(Int,Int) {
+        
+        var prrnaCount = 0       // protein + rna count
+        var genomCount = 0       // genomic count
+        
+        var tList = [Target_C]()
+        
+        for t in targetL {
+            if ( tList.contains( where : { $0.hugoName  == t.hugoName} ) == false ) {
+                tList.append (t)
+                if t.markerType == .genomic {
+                   genomCount +=  1
+               } else {
+                   prrnaCount += 1
+               }
+            }
+        }
+        return ( genomCount, prrnaCount)
+    }
+        
+    
+    //------------------------
+    // Rebuild the combos
+    func buildAllCombos () {
+
+        // specific rules
         rules.allRules ()
+        
+        var prrnaCount = 0       // protein + rna count
+        var genomCount = 0       // genomic count
+
+        ( genomCount , prrnaCount ) = self.markersCount ()
         
         // reset counter
          self.drugDisabled = 0
@@ -630,38 +851,42 @@ extension ViewController: targetChangeDelegate {
             
             let combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelLxx, taking: drugNb)
             for elem in combosxx{
-                let combElem = Combination_C (dtRelList: elem,
-                                              actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count ) 
+                let combElem = Combination_C (dtRelList: elem, filter : (calcMode == .auto),
+                                              genomCount : genomCount, prrnaCount: prrnaCount, pathogenicCount : targetL.count )
                 comboL[drugNb-1].append ( combElem )
             }
-            comboL[drugNb-1].sort(by: { ($0.matchScore > $1.matchScore) })
             
-            // remove zero scored combos
-            var c = comboL[drugNb-1].last
-            while ((c != nil) && (c!.strengthScore == 0 ) ) {
-                comboL[drugNb-1].removeLast()
-                c = comboL[drugNb-1].last
+            // Remove zero scored combos in Auto Mode
+            if (calcMode == .auto) {
+               comboL[drugNb-1].sort(by: { ($0.strengthScore > $1.strengthScore) })
+               var c = comboL[drugNb-1].last
+               while ((c != nil) && (c!.strengthScore == 0 ) ) {
+                   comboL[drugNb-1].removeLast()
+                   c = comboL[drugNb-1].last
             }
-
+            }
+        
             // take care of next size combo
             drugNb = drugNb + 1
         }
- 
+        
+      
+        // clean tmp variables
         dtRelLxx.removeAll()
-        combListTableview.reloadData()
+        dtRelLyy.removeAll()
+        
+        // Sort and Display
+        reArrangeAllCombos ()
         
     }
     
     func drugListAdjusted ( outDrugL: [DTRelation_C], actionable: Bool, rebuilt: Bool ){
         
         // free previous Drug Target Relation list
-        // and take teh new one
+        // and take the new one
         
         if ( actionable == true ) {
-            if (rebuilt == false) {
-                // do not increment if complete rebuilt of the list
-                actionableTargetCount = actionableTargetCount + 1
-            }
+           
             dtRelL.removeAll()
             dtRelL = outDrugL
             
@@ -677,13 +902,9 @@ extension ViewController: targetChangeDelegate {
         } else {
             
             // mark the Gene as not actionable
-            /*
-            let indexPath = IndexPath(item: targetL.count - 1, section: 0)
-            let cell = targetInputTableView.cellForRow(at: indexPath) as! TargetTableViewCell
-            let label = cell.gene
-            label!.textColor = UIColor.lightGray
-            */
-            targetL.last!.actionable = false  // remember not acctionnable
+            if (targetL.count != 0) {
+                targetL.last!.actionable = false  // remember not acctionnable
+            }
             
             targetInputTableView.reloadData()
         }
@@ -700,10 +921,37 @@ extension ViewController: loginScreenDelegate {
         loggedIn = hasLogged
         if (loggedIn == true ){
             loginButton.setImage(UIImage(named: "rounded doctor"), for: .normal)
+            self.navigationItem.rightBarButtonItem?.isEnabled = true
+        
         }else{
             loginButton.setImage(UIImage(named: "person-generic"), for: .normal)
+            self.navigationItem.rightBarButtonItem?.isEnabled = false
+
         }
         
+    }
+}
+
+//------------------------------------------------------------------------
+// CASE SELECTION DELEGATE
+extension ViewController: caseSelectionDelegate {
+    
+    func didSelectCase (caseRow: Int){
+        let theCase = caseL [caseRow]
+        
+        // clear all and load the config
+        self.resetTapped (self)
+        
+        
+        newPathologyName.text = theCase.diagnosis
+        newMemo.text = theCase.nickName
+        newAge.text = theCase.age
+        newCaseID.text = theCase.caseId
+        
+        for t in theCase.targetL {
+             self.addTarget (target: t)
+        }
+    
     }
 }
 

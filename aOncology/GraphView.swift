@@ -37,7 +37,8 @@ private struct Constants {
         let graphWidth = self.bounds.width  - margin * 2 - 4
         
         //Calculate the gap between points
-        let spacing = graphWidth / CGFloat(self.graphPoints.count - 1)
+        
+        let spacing = self.graphPoints.count == 1 ? 1 : graphWidth / CGFloat(self.graphPoints.count - 1)
         return CGFloat(column) * spacing + margin + 2
     }
     
