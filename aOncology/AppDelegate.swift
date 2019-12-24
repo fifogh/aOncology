@@ -19,8 +19,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
        // var myUtil = util()
        // myUtil.limitGenes()
+        
         let myEnrich = Enrich()
         myEnrich.addRel()
+        
+        let myD2Targets = D2Targets ()
+        myD2Targets.create()
+        
         
         RunLoop.current.run(until: (Date(timeIntervalSinceNow: 1.5)))
         return true

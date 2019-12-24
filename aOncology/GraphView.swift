@@ -59,7 +59,7 @@ private struct Constants {
         let topBorder = Constants.topBorder
         let bottomBorder = Constants.bottomBorder
         let graphHeight = self.bounds.height  - topBorder - bottomBorder
-        let maxValue = graphPoints.max()!
+        let maxValue = 100 //resigngraphPoints.max()!
         
         let y = CGFloat(graphPoint) / CGFloat(maxValue) * graphHeight
         return graphHeight + topBorder - y // Flip the graph
@@ -116,7 +116,7 @@ private struct Constants {
         let topBorder = Constants.topBorder
         let bottomBorder = Constants.bottomBorder
         let graphHeight = height - topBorder - bottomBorder
-        let maxValue = graphPoints.max()!
+        let maxValue = 100 //graphPoints.max()!
         let columnYPoint = { (graphPoint: Int) -> CGFloat in
             let y = CGFloat(graphPoint) / CGFloat(maxValue) * graphHeight
             return graphHeight + topBorder - y // Flip the graph

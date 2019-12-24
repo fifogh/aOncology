@@ -22,7 +22,9 @@
 		6D5434D720BE6B2B008C6F38 /* oncoModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 6D5434D520BE6B2B008C6F38 /* oncoModel.xcdatamodeld */; };
 		6D5DB41320914D7700C273FE /* Target_C.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5DB41220914D7700C273FE /* Target_C.swift */; };
 		6D5DB41720920D6800C273FE /* TargetTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D5DB41620920D6800C273FE /* TargetTableViewCell.swift */; };
+		6D90F73C20D5A4C300D4CC4E /* LookUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D90F73B20D5A4C300D4CC4E /* LookUpViewController.swift */; };
 		6DA236A9209A596500D5E01F /* ComboDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA236A8209A596500D5E01F /* ComboDetailViewController.swift */; };
+		6DC64A7720C01993006AF3A3 /* CaseModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC64A7620C01993006AF3A3 /* CaseModel.swift */; };
 		6DC6A44A208D5C5B0014A080 /* DrugDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */; };
 		6DC6A44C208D8A130014A080 /* DrugTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */; };
 		6DC906BA2086B3C700286AB6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DC906B92086B3C700286AB6 /* AppDelegate.swift */; };
@@ -39,6 +41,11 @@
 		6DDF863220A5403E00C120B1 /* ComboDetailTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF863120A5403E00C120B1 /* ComboDetailTableViewCell.swift */; };
 		6DDF863420A67B5C00C120B1 /* DebugViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF863320A67B5C00C120B1 /* DebugViewController.swift */; };
 		6DDF863620A7383400C120B1 /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DDF863520A7383400C120B1 /* GraphView.swift */; };
+		6DF275FF211BCC620050F690 /* DrugsLookUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF275FE211BCC620050F690 /* DrugsLookUpViewController.swift */; };
+		6DF276012124D44F0050F690 /* CosmoDistrib.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF276002124D44F0050F690 /* CosmoDistrib.swift */; };
+		6DF276032124E0E30050F690 /* chat-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 6DF276022124E0E30050F690 /* chat-icon.png */; };
+		6DF27605212A1D780050F690 /* ReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF27604212A1D780050F690 /* ReviewViewController.swift */; };
+		6DF27607212CC8600050F690 /* ReviewTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF27606212CC8600050F690 /* ReviewTableViewCell.swift */; };
 		6DF8BC4720AB994F00868C91 /* fda.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF8BC4620AB994F00868C91 /* fda.swift */; };
 		6DF8BC4920ACD22D00868C91 /* rules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF8BC4820ACD22D00868C91 /* rules.swift */; };
 /* End PBXBuildFile section */
@@ -59,7 +66,9 @@
 		6D5434D620BE6B2B008C6F38 /* oncoModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = oncoModel.xcdatamodel; sourceTree = "<group>"; };
 		6D5DB41220914D7700C273FE /* Target_C.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Target_C.swift; sourceTree = "<group>"; };
 		6D5DB41620920D6800C273FE /* TargetTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TargetTableViewCell.swift; sourceTree = "<group>"; };
+		6D90F73B20D5A4C300D4CC4E /* LookUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LookUpViewController.swift; sourceTree = "<group>"; };
 		6DA236A8209A596500D5E01F /* ComboDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboDetailViewController.swift; sourceTree = "<group>"; };
+		6DC64A7620C01993006AF3A3 /* CaseModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaseModel.swift; sourceTree = "<group>"; };
 		6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrugDetailViewController.swift; sourceTree = "<group>"; };
 		6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrugTableViewCell.swift; sourceTree = "<group>"; };
 		6DC906B62086B3C700286AB6 /* aOncology.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = aOncology.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -78,6 +87,11 @@
 		6DDF863120A5403E00C120B1 /* ComboDetailTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComboDetailTableViewCell.swift; sourceTree = "<group>"; };
 		6DDF863320A67B5C00C120B1 /* DebugViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugViewController.swift; sourceTree = "<group>"; };
 		6DDF863520A7383400C120B1 /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		6DF275FE211BCC620050F690 /* DrugsLookUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrugsLookUpViewController.swift; sourceTree = "<group>"; };
+		6DF276002124D44F0050F690 /* CosmoDistrib.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CosmoDistrib.swift; sourceTree = "<group>"; };
+		6DF276022124E0E30050F690 /* chat-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "chat-icon.png"; sourceTree = "<group>"; };
+		6DF27604212A1D780050F690 /* ReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewViewController.swift; sourceTree = "<group>"; };
+		6DF27606212CC8600050F690 /* ReviewTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReviewTableViewCell.swift; sourceTree = "<group>"; };
 		6DF8BC4620AB994F00868C91 /* fda.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fda.swift; sourceTree = "<group>"; };
 		6DF8BC4820ACD22D00868C91 /* rules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = rules.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -93,6 +107,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6DC64A7420C018A3006AF3A3 /* ViewControlers */ = {
+			isa = PBXGroup;
+			children = (
+				6D90F73B20D5A4C300D4CC4E /* LookUpViewController.swift */,
+				6DF275FE211BCC620050F690 /* DrugsLookUpViewController.swift */,
+				6D5434CF20BE0A09008C6F38 /* CaseViewController.swift */,
+				6DA236A8209A596500D5E01F /* ComboDetailViewController.swift */,
+				6DC906D1208AFAC600286AB6 /* loginViewController.swift */,
+				6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */,
+				6DDF863320A67B5C00C120B1 /* DebugViewController.swift */,
+				6DF27604212A1D780050F690 /* ReviewViewController.swift */,
+				6DC906BB2086B3C700286AB6 /* ViewController.swift */,
+			);
+			path = ViewControlers;
+			sourceTree = "<group>";
+		};
+		6DC64A7520C01925006AF3A3 /* TableViewCells */ = {
+			isa = PBXGroup;
+			children = (
+				6D4F30B020952470006B946E /* Comb1TableViewCell.swift */,
+				6D4F30B220952485006B946E /* Comb2TableViewCell.swift */,
+				6D4F30B42095249C006B946E /* Comb3TableViewCell.swift */,
+				6DDF863120A5403E00C120B1 /* ComboDetailTableViewCell.swift */,
+				6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */,
+				6D5DB41620920D6800C273FE /* TargetTableViewCell.swift */,
+				6DF27606212CC8600050F690 /* ReviewTableViewCell.swift */,
+			);
+			path = TableViewCells;
+			sourceTree = "<group>";
+		};
 		6DC906AD2086B3C700286AB6 = {
 			isa = PBXGroup;
 			children = (
@@ -115,29 +159,22 @@
 			children = (
 				6DCC6F6820A3E497000A64D6 /* Data */,
 				6DDA587820A27D1100208EF1 /* SearchTextField.swift */,
+				6DC64A7520C01925006AF3A3 /* TableViewCells */,
 				6D5434D320BE0ADD008C6F38 /* Case_C.swift */,
+				6DC64A7620C01993006AF3A3 /* CaseModel.swift */,
 				6D5DB41220914D7700C273FE /* Target_C.swift */,
 				6D4F30AA2094C32B006B946E /* DTRelation.swift */,
 				6DC906B92086B3C700286AB6 /* AppDelegate.swift */,
-				6D4F30B020952470006B946E /* Comb1TableViewCell.swift */,
-				6D4F30B220952485006B946E /* Comb2TableViewCell.swift */,
-				6D4F30B42095249C006B946E /* Comb3TableViewCell.swift */,
-				6DC6A44B208D8A130014A080 /* DrugTableViewCell.swift */,
-				6D5DB41620920D6800C273FE /* TargetTableViewCell.swift */,
 				6D4F30B620967D9F006B946E /* CombMaker.swift */,
 				6D4F30B820969D8E006B946E /* Combinations.swift */,
-				6DDF863120A5403E00C120B1 /* ComboDetailTableViewCell.swift */,
-				6DC6A449208D5C5B0014A080 /* DrugDetailViewController.swift */,
-				6DA236A8209A596500D5E01F /* ComboDetailViewController.swift */,
-				6DC906D1208AFAC600286AB6 /* loginViewController.swift */,
-				6D5434CF20BE0A09008C6F38 /* CaseViewController.swift */,
 				6DC906CD2086CA4500286AB6 /* drugGene.swift */,
-				6DC906BB2086B3C700286AB6 /* ViewController.swift */,
 				6DDF863520A7383400C120B1 /* GraphView.swift */,
 				6DF8BC4820ACD22D00868C91 /* rules.swift */,
-				6DDF863320A67B5C00C120B1 /* DebugViewController.swift */,
+				6DC64A7420C018A3006AF3A3 /* ViewControlers */,
 				6DC906BD2086B3C700286AB6 /* Main.storyboard */,
+				6DF276002124D44F0050F690 /* CosmoDistrib.swift */,
 				6DC906C02086B3C700286AB6 /* Assets.xcassets */,
+				6DF276022124E0E30050F690 /* chat-icon.png */,
 				6DC906C22086B3C700286AB6 /* LaunchScreen.storyboard */,
 				6DC906C52086B3C700286AB6 /* Info.plist */,
 			);
@@ -220,6 +257,7 @@
 			files = (
 				6DC906C42086B3C700286AB6 /* LaunchScreen.storyboard in Resources */,
 				6DC906C12086B3C700286AB6 /* Assets.xcassets in Resources */,
+				6DF276032124E0E30050F690 /* chat-icon.png in Resources */,
 				6DC906BF2086B3C700286AB6 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -247,17 +285,23 @@
 				6D4F30AB2094C32B006B946E /* DTRelation.swift in Sources */,
 				6D27546720A7CFF800422405 /* SynoReduced.swift in Sources */,
 				6DC6A44A208D5C5B0014A080 /* DrugDetailViewController.swift in Sources */,
+				6DF27607212CC8600050F690 /* ReviewTableViewCell.swift in Sources */,
 				6D4F30A92093EE08006B946E /* DTRelData.swift in Sources */,
+				6DF276012124D44F0050F690 /* CosmoDistrib.swift in Sources */,
 				6D5DB41720920D6800C273FE /* TargetTableViewCell.swift in Sources */,
+				6DF275FF211BCC620050F690 /* DrugsLookUpViewController.swift in Sources */,
 				6D5DB41320914D7700C273FE /* Target_C.swift in Sources */,
 				6D4F30B720967D9F006B946E /* CombMaker.swift in Sources */,
 				6DA236A9209A596500D5E01F /* ComboDetailViewController.swift in Sources */,
 				6DC6A44C208D8A130014A080 /* DrugTableViewCell.swift in Sources */,
 				6DDF863020A5165E00C120B1 /* GeneSynData.swift in Sources */,
+				6DC64A7720C01993006AF3A3 /* CaseModel.swift in Sources */,
+				6DF27605212A1D780050F690 /* ReviewViewController.swift in Sources */,
 				6DDF863620A7383400C120B1 /* GraphView.swift in Sources */,
 				6D5434D020BE0A09008C6F38 /* CaseViewController.swift in Sources */,
 				6D4F30B320952485006B946E /* Comb2TableViewCell.swift in Sources */,
 				6DDF863220A5403E00C120B1 /* ComboDetailTableViewCell.swift in Sources */,
+				6D90F73C20D5A4C300D4CC4E /* LookUpViewController.swift in Sources */,
 				6D4F30B120952470006B946E /* Comb1TableViewCell.swift in Sources */,
 				6D5434CC20AFC491008C6F38 /* PathoSynData.swift in Sources */,
 				6D4F30B920969D8E006B946E /* Combinations.swift in Sources */,

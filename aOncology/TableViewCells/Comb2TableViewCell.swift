@@ -18,6 +18,7 @@ class Comb2TableViewCell: UITableViewCell {
     @IBOutlet var score: UILabel!
     @IBOutlet var matchScore: UILabel!
     @IBOutlet var warning: UIImageView!
+    @IBOutlet var row: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

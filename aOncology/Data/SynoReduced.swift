@@ -604,5 +604,13 @@ import Foundation
     "hucep-6" : "BAP1",
     "xnp" : "ATRX",
     "rad10" : "ERCC1",
-    "raf-1" : "RAF1"
+    "raf-1" : "RAF1",
+    "hdm2"  : "MDM2" ,
+    "hdmx"  : "MDM4" ,
+    "mdmx"  : "MDM4" ,
+    "MDM2"  : "MDM2" ,
+    "MDM4"  : "MDM4" ,
+    "STAT5B": "STAT5",
+    "pb1" : "PBRM1" ,
+    "baf180" : "PBRM1" ,
 ]

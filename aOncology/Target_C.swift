@@ -12,9 +12,9 @@ import Foundation
 enum MarkerType :Int {case genomic, protein, rna }         // Markers Types
 
 
-var  protMarkerL  = [ "Positive","Negative","Pos","Neg", "+","-","High","Low", ]
-var  rnaMarkerL   = [ "Overexpression", "Over"]
-var  keyWordAberL = [ "Gain", "Amp", "Ampl", "Amplification","Loss" ]
+var  protMarkerL  = [ "Positive","Negative", "+","-","High","Low", ]
+var  rnaMarkerL   = [ "Overexpression", "Underexpression"]
+var  keyWordAberL = [ "Gain", "Amplification","Loss" ]
 
 var  allKeyWordL  = protMarkerL + rnaMarkerL + keyWordAberL
 
@@ -23,11 +23,11 @@ var  allKeyWordL  = protMarkerL + rnaMarkerL + keyWordAberL
 //------------------------------------------------------------------------------
 // GENE Class
 class Gene_C {
-    var id         : Int           // Id instead of Name
+    var id         : String           // Id instead of Name
     var hugoName   : String        // plain name
     var synoName   : String!       // Synonym
 
-    init (geneId: Int, hugoName: String){
+    init (geneId: String, hugoName: String){
         self.id       = geneId
         self.hugoName = hugoName
     }
@@ -39,22 +39,29 @@ class Gene_C {
 class Target_C : Gene_C  {
     
     
-    var aberDesc   : String?       // aberration Description
-    var aberDisp   : String?       // keyword is displayed and AberDesc is set to ""
-    var actionable : Bool
-    var markerType : MarkerType
-    var keyword    : String?       // in case of protein, rna marker, or keyword
+    var aberDesc    : String?       // aberration Description
+    var aberDisp    : String?       // keyword is displayed and AberDesc is set to ""
+    var actionable  : Bool
+    var markerType  : MarkerType
+    var forceGenomic: Bool          // proteinPenalty = 1/2 histscore
+    var keyword     : String?       // in case of protein, rna marker, or keyword
+    var allowed     : Bool          // user selection yes/no
 
-    init (id: Int, hugoName:String, aberration: String){
 
-        self.aberDesc    = aberration      // might be erased
-        self.aberDisp    = aberration      // keep this one for display
-        self.actionable  = true
+    init (id: String, hugoName:String, aberration: String){
+
+        self.aberDesc     = aberration      // might be erased
+        self.aberDisp     = aberration      // keep this one for display
+        self.actionable   = false           // until we find a drug
+        self.allowed      = true            // unless explicit (user, rule)
+        self.forceGenomic = false           // by default: not forced to genomic
+
         self.markerType  = .genomic        // will be set after self.init
 
 
         super.init(geneId: id, hugoName: hugoName)
         self.setMarkerType()
+        self.setProtPenalty()
         
     }
     
@@ -77,5 +84,19 @@ class Target_C : Gene_C  {
         }
         
     }
+    
+    func setProtPenalty (){
+        
+        if ((hugoName == "CD274") || (hugoName == "ERBB2") ||
+            (hugoName == "AR")    || (hugoName == "ESR1")) {
+            
+            if ( (markerType == MarkerType.protein ) || ( markerType == MarkerType.rna)) {
+                rulesLog += "Void Protein/Rna Penalty on: " + String(hugoName) + "\n"
+                forceGenomic = true
+            }
+        }
+        
+    }
+    
 }
 

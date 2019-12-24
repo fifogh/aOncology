@@ -76,7 +76,7 @@ class geneDrugs {
                 
             } else {
                 // add that target in the list of targets for that drug
-                let theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, Ic50: theIc50 )
+                let theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, drugName: theDrug, Ic50: theIc50 )
                 inDTRelL [drugPos].targetHitL!.append(theTargetHit)
             }
             
@@ -89,7 +89,7 @@ class geneDrugs {
             
             let newDTRelation = DTRelation_C ( drug: newDrug )
             
-            let theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, Ic50: theIc50 )
+            let theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct,  drugName: theDrug, Ic50: theIc50 )
             newDTRelation.targetHitL.append ( theTargetHit )
             inDTRelL.append ( newDTRelation )
         }
@@ -104,40 +104,6 @@ class geneDrugs {
     
     }
 
- /*
-    //------------------
-    // Thr Big ~one
-    func buildRelations ( theTarget: Target_C,  inDTRelL: inout [DTRelation_C], allowed: Bool) {
-        
-        
-        //-----------------
-        // the direct Drugs
-        
-        if ( dicDTRelL[theTarget.hugoName] != nil ) {
-            let drugIc50L = giveDrugList ( theTarget: theTarget )
-            
-            for (drugName, Ic50) in drugIc50L {
-                addDTRelation (inDTRelL: &inDTRelL, theTarget: theTarget, theDrug: drugName, theIc50: Ic50, allowed: allowed)
-            }
-        }
-        
-        //-----------------
-        // the substitution
-       
-        if ( dicTSubsL [theTarget.hugoName] != nil) {
-            let targetModeL = giveSubstitutionList (theHugoName: theTarget.hugoName)
-            for (hugoSubs, mode) in targetModeL {
-                addSubsRelations ( theTarget: Target_C (id:0, hugoName:hugoSubs, aberration : ""),  inDTRelL: &inDTRelL, allowed: allowed)
-              //  addSubsDTRelation ()
-            }
-            //theTarget.calcSubsHitScore()
-            // calculate subscore of the Target ( fn mode)
-        }
-        
-        
-    }
-
-*/
     //--------------------------------------------------------------------------
     // Update DrugTarg Relation list after a target was added
     
@@ -154,9 +120,9 @@ class geneDrugs {
         var updDTRelL = self.checkAndAdd   (theTarget: theTarget, inDTRelL: inDrugL,   allowed: allowed)
             updDTRelL = self.targetSubsAdd (theTarget: theTarget, inDTRelL: updDTRelL, allowed: allowed)
         
-        updDTRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
-            $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
-            ($0.drug.drugName < $1.drug.drugName)  })
+    //    updDTRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
+    //        $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
+    //        ($0.drug.drugName < $1.drug.drugName)  })
         newGeneConfigDelegate.drugListAdjusted (outDrugL : updDTRelL,  actionable:  self.actionableTarget, rebuilt: false  )
     }
     
@@ -168,22 +134,29 @@ class geneDrugs {
     func rebuildAll (inTargetL: [Target_C], inDTRelL: [DTRelation_C], allowed: Bool) {
  
         var newDTRelL = [DTRelation_C]()
-        for target in inTargetL {
-            newDTRelL = self.checkAndAdd   (theTarget: target, inDTRelL: newDTRelL, allowed: allowed)
-            newDTRelL = self.targetSubsAdd (theTarget: target, inDTRelL: newDTRelL, allowed: allowed)
-          }
         
+        rulesLog = ""
+
+        for target in inTargetL {
+            if (target.allowed) {
+               newDTRelL = self.checkAndAdd   (theTarget: target, inDTRelL: newDTRelL, allowed: allowed)
+               newDTRelL = self.targetSubsAdd (theTarget: target, inDTRelL: newDTRelL, allowed: allowed)
+            }
+          }
+ 
+        /*
+         CAN LEAVE IT but conflict with rules when drugs ahve been removed/forbidden coz of target presence
         // retrieve and reassign the drug.allowed field 
         for t in newDTRelL {
             let pos  = inDTRelL.index( where: {  ($0.drug.drugName == t.drug.drugName)  })            
             if (pos != nil) {
                 t.drug.allowed = inDTRelL [pos!].drug.allowed
             }
-        }
+        }*/
         
-        newDTRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
-            $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
-            ($0.drug.drugName < $1.drug.drugName)  })
+    //    newDTRelL.sort(by: { $0.drug.allowed  != $1.drug.allowed  ? $0.drug.allowed && !$1.drug.allowed :
+    //        $0.drug.approved != $1.drug.approved ? $0.drug.approved == 1  && $1.drug.approved == 0 :
+    //        ($0.drug.drugName < $1.drug.drugName)  })
         newGeneConfigDelegate.drugListAdjusted (outDrugL : newDTRelL, actionable: self.actionableTarget, rebuilt: true )
     }
 
@@ -199,11 +172,13 @@ class geneDrugs {
         if ( dicTSubsL [theTarget.hugoName] != nil) {
             
             // an entry exist ...
+            theTarget.actionable = true
             actionableTarget = true
-            
+
             // Target Substitution exists
             // for all targets inteh list add them as substitution Targets
             let targetSubsL = dicTSubsL [theTarget.hugoName]!
+            let subsNb = targetSubsL.count
             
             for (theTargetSubs, mode ) in targetSubsL {
                 if ( dicDTRelL[theTargetSubs] != nil ) {
@@ -216,29 +191,35 @@ class geneDrugs {
                             // a drug exists for that target Subs
                             // if the Target is already in the list, also add the subsitution now
                             
-                             if let tgtPos = updDTRelL [drugPos].targetHitL!.index( where: {  (($0.target.hugoName == theTarget.hugoName) && ($0.target.aberDesc! == "" ))  }) {
- 
+                          //  if let tgtPos = updDTRelL [drugPos].targetHitL!.index( where: {  (($0.target.hugoName == theTarget.hugoName) && ($0.target.aberDesc! == "" ))  }) {
+                              if let tgtPos = updDTRelL [drugPos].targetHitL!.index( where: {  (($0.target.hugoName == theTarget.hugoName) )  }) {
+
                                 // if the subs already exist then pass else add the substitution
-                                if ( updDTRelL [drugPos].targetHitL! [tgtPos].targetSubsL.index (where: { (($0.target.hugoName == theTargetSubs) && ($0.target.aberDesc! == "" ))  }) == nil ) {
-                                    
-                                    let locTargetSubs = Target_C    (id:0, hugoName: theTargetSubs, aberration: "")
-                                    let targetSubs    = TargetHit_C (id: 0,  target: locTargetSubs, mode: .direct, Ic50: ic50 )
+                               // if ( updDTRelL [drugPos].targetHitL! [tgtPos].targetSubsL.index (where: { (($0.target.hugoName == theTargetSubs) && ($0.target.aberDesc! == "" ))  }) == nil ) {
+                               if ( updDTRelL [drugPos].targetHitL! [tgtPos].targetSubsL.index (where: { (($0.target.hugoName == theTargetSubs) )  }) == nil ) {
+
+                                    let locTargetSubs = Target_C    (id:"", hugoName: theTargetSubs, aberration: "")
+                                 //   let targetSubs    = TargetHit_C (id:0,  target: locTargetSubs, mode: .direct, Ic50: ic50 )
+                                let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect, drugName: drug, Ic50: ic50 )
+
+                                    // set # of substitution
+                                    updDTRelL [drugPos].targetHitL![tgtPos].subsNb = subsNb
                                     
                                     updDTRelL [drugPos].targetHitL![tgtPos].targetSubsL.append(targetSubs)
-                                    updDTRelL [drugPos].targetHitL![tgtPos].calcSubsHitScore()
+                                updDTRelL [drugPos].targetHitL![tgtPos].calcSubsHitScore(subsTotal: subsNb)
                                 }
                                 
                             } else {
-                                // add the target and the Subs in the list of targets for that drug
-                                theTargetHit   = TargetHit_C (id: 0, target: theTarget, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect)
-                                let locTargetSubs = Target_C (id: 0, hugoName: theTargetSubs, aberration: "")
-                               // let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: .direct, Ic50: ic50 )
-                                 let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect, Ic50: ic50 )
-
+                              // add the target and the Subs in the list of targets for that drug
+                              //  theTargetHit   = TargetHit_C (id: 0, target: theTarget, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect)
+                                theTargetHit   = TargetHit_C (id: 0, target: theTarget, mode: .direct, drugName: drug)
+                                theTargetHit.subsNb = subsNb
+                                let locTargetSubs = Target_C (id: "", hugoName: theTargetSubs, aberration: "")
+                                let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect,drugName: drug, Ic50: ic50 )
 
                                 theTargetHit.targetSubsL.append(targetSubs)
                                 updDTRelL [drugPos].targetHitL!.append (theTargetHit)
-                                updDTRelL [drugPos].targetHitL!.last!.calcSubsHitScore()
+                                updDTRelL [drugPos].targetHitL!.last!.calcSubsHitScore(subsTotal: subsNb)
                             }
                             
                         } else {
@@ -251,16 +232,18 @@ class geneDrugs {
                             
                             let newDTRelation = DTRelation_C ( drug: newDrug )
                             
-                            theTargetHit   = TargetHit_C (id: 0, target: theTarget, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect)
-                            let locTargetSubs = Target_C (id: 0, hugoName: theTargetSubs, aberration: "")
-                          //  let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: .direct, Ic50: ic50 )
-                            let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect, Ic50: ic50 )
 
-                            
+                            theTargetHit   = TargetHit_C (id: 0, target: theTarget, mode: .direct, drugName: drug)
+                           // theTargetHit   = TargetHit_C (id: 0, target: theTarget, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect)
+                            let locTargetSubs = Target_C (id: "", hugoName: theTargetSubs, aberration: "")
+                            let targetSubs = TargetHit_C (id: 0, target: locTargetSubs, mode: mode == 1 ? SubsMode.indirect: SubsMode.semidirect, drugName: drug, Ic50: ic50 )
+
+                            theTargetHit.subsNb = subsNb
+
                             theTargetHit.targetSubsL.append(targetSubs)
                             
                             newDTRelation.targetHitL.append ( theTargetHit )
-                            theTargetHit.calcSubsHitScore()
+                            theTargetHit.calcSubsHitScore(subsTotal: subsNb)
 
                             updDTRelL.append ( newDTRelation )
                             
@@ -294,12 +277,15 @@ class geneDrugs {
             // so if no Drug is found for that particular aberration look for the list with no aberration
             
             // an entry exist ...
-            actionableTarget = true
+            //actionableTarget = true
+            theTarget.actionable = true
             
-            let aberration = theTarget.aberDesc
+            
+            var aberration = theTarget.aberDesc
             var drugIc50L =  dicDTRelL [theTarget.hugoName]! [aberration!]
             if (drugIc50L == nil) {
-                drugIc50L =  dicDTRelL [theTarget.hugoName]! [""]
+                aberration = ""
+                drugIc50L =  dicDTRelL [theTarget.hugoName]! [aberration!]
             }
  
             // for each drug of the DrugIC50list
@@ -312,15 +298,16 @@ class geneDrugs {
                     // Drug already exist.
                     // Add theTarget in Target List if not yet in
                     // var targetHitL  = updDTRelL [drugPos].targetHitL!
-                    if  (updDTRelL [drugPos].targetHitL!.index ( where: { (($0.target.hugoName == theTarget.hugoName) && ($0.target.aberDesc == theTarget.aberDesc ))  }) != nil) {
-                        
+                   // if  (updDTRelL [drugPos].targetHitL!.index ( where: { (($0.target.hugoName == theTarget.hugoName) && ($0.target.aberDesc == theTarget.aberDesc ))  }) != nil) {
+                      if  (updDTRelL [drugPos].targetHitL!.index ( where: { (($0.target.hugoName == theTarget.hugoName))  }) != nil) {
+
                         // nothing to do
                         // theTargetHit = targetHitL[pos]
                         print ("Nothing to do \n")
                         
                     } else {
                         // add that target in the list of targets for that drug
-                        theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, Ic50: ic50 )
+                        theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, drugName: drug, Ic50: ic50 )
                         updDTRelL [drugPos].targetHitL!.append(theTargetHit)
                     }
                         
@@ -333,7 +320,7 @@ class geneDrugs {
 
                     let newDTRelation = DTRelation_C ( drug: newDrug )
                     
-                    theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, Ic50: ic50 )
+                    theTargetHit = TargetHit_C (id: 0,  target: theTarget, mode: SubsMode.direct, drugName: drug, Ic50: ic50 )
                     newDTRelation.targetHitL.append ( theTargetHit )
 
                     updDTRelL.append ( newDTRelation )

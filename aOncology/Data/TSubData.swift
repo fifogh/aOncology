@@ -1,4 +1,9 @@
-var dicTSubsL : [String: [String: Int]] = 
+
+//1- indirect
+//2- semi-direct
+
+
+var dicTSubsL : [String: [String: Int]] =
    [
     "AKT1" :
         [ "MTOR" : 1 ],
@@ -79,6 +84,11 @@ var dicTSubsL : [String: [String: Int]] =
         [ "proteasome" : 1 ],
     "CD274" :
         [ "PDCD1" : 2 ],
+    
+    "CDH1" :
+        [ "PTGS1" : 1 ,
+          "PTGS2" : 1 ],
+    
     "CDK12" :
         [ "DNA damage" : 2,
           "PARP1" : 2,
@@ -92,6 +102,10 @@ var dicTSubsL : [String: [String: Int]] =
         [ "CDK4" : 1 ],
     "CDKN2B" :
         [ "CDK4" : 1 ],
+    
+    "CDKN2C" :
+        [ "CDK4" : 1 ],
+    
     "CRKL" :
         [ "ABL1" : 1 ],
     "CSF1" :
@@ -123,12 +137,25 @@ var dicTSubsL : [String: [String: Int]] =
         [ "DNA damage" : 2,
           "PARP1" : 2,
           "PARP2" : 2 ],
+    
+    "EP300" :
+        [ "VEGFA" : 1,
+          "PTGS1" : 1,
+          "PTGS2" : 1 ],
+    
     "ERBB3" :
         [ "ERBB2" : 2 ],
     "ERCC1" :
         [ "DNA damage" : 2,
           "PARP1" : 2,
           "PARP2" : 2 ],
+    
+    "ERCC5" :
+        [ "DNA damage" : 2,
+          "PARP1" : 2,
+          "PARP2" : 2 ],
+
+    
     "ERRFI1" :
         [ "EGFR" : 1,
           "ERBB2" : 1 ],
@@ -314,34 +341,42 @@ var dicTSubsL : [String: [String: Int]] =
     "KRAS" :
         [ "MAP2K1" : 1,
           "MAP2K2" : 1 ],
+ /*
     "MAPK1" :
         [ "EGFR" : 1 ],
+ */
     "MEN1" :
         [ "SMO" : 1 ],
     "MIF" :
         [ "CXCR2" : 2,
           "CXCR4" : 2 ],
+  /*
     "MLH1" :
         [ "CD274" : 2,
           "PDCD1" : 2 ],
+ */
+    "MLH1" :
+        [ "GHOST_TARGET" : 2],
+
     "MLH3" :
-        [ "CD274" : 2,
-          "PDCD1" : 2 ],
+        [ "GHOST_TARGET" : 2],
     "MSH2" :
-        [ "CD274" : 2,
-          "PDCD1" : 2 ],
+        [ "GHOST_TARGET" : 2],
     "MSH3" :
-        [ "CD274" : 2,
-          "PDCD1" : 2 ],
+         [ "GHOST_TARGET" : 2],
     "MSH6" :
-        [ "CD274" : 2,
-          "PDCD1" : 2 ],
+         [ "GHOST_TARGET" : 2],
     "MUTYH" :
         [ "DNA damage" : 2,
           "PARP1" : 2,
           "PARP2" : 2 ],
     "MYC" :
         [ "CDK4" : 1 ],
+
+    "MYST3" :
+        [ "ESR1" : 1 ],
+
+    
     "MYD88" :
         [ "BTK" : 1 ],
     "NF1" :
@@ -384,6 +419,10 @@ var dicTSubsL : [String: [String: Int]] =
         [ "MTOR" : 1 ],
     "PIK3CB" :
         [ "MTOR" : 1 ],
+    
+    "PIK3CD" :
+        [ "MTOR" : 1 ],
+    
     "PIK3CG" :
         [ "MTOR" : 1 ],
     "PIK3R1" :
@@ -393,11 +432,9 @@ var dicTSubsL : [String: [String: Int]] =
         [ "MTOR" : 1,
           "PIK3CA" : 1 ],
     "PMS1" :
-        [ "CD274" : 2,
-          "PDCD1" : 2 ],
+         [ "GHOST_TARGET" : 2],
     "PMS2" :
-        [ "CD274" : 2,
-          "PDCD1" : 2 ],
+         [ "GHOST_TARGET" : 2],
     "PTCH1" :
         [ "SMO" : 1 ],
     "PTEN" :
@@ -428,6 +465,13 @@ var dicTSubsL : [String: [String: Int]] =
     "SLIT2" :
         [ "PTGS1" : 1,
           "PTGS2" : 1 ],
+    
+    "SMAD4" :
+        [ "ERBB2" : 1,
+          "EGFR" : 1 ,
+          "MAP2K1" : 1 ,
+          "MAP2K2" : 1 ],
+    
     "STAT3" :
         [ "JAK1" : 1,
           "JAK2" : 1,
@@ -436,7 +480,8 @@ var dicTSubsL : [String: [String: Int]] =
         [ "MTOR" : 1 ],
     "TERT" :
         [ "PARP1" : 1,
-          "PARP2" : 1 ],
+          "PARP2" : 1,
+          "DNA damage":2],
     "TET1" :
         [ "DNMT1" : 1 ],
     "TET2" :
@@ -489,7 +534,7 @@ var dicTSubsL : [String: [String: Int]] =
 class Enrich {
     
     func addRel () {
-        
+ /*
         for t in dicTSubsL.keys {
             for subs in dicTSubsL[t]!.keys {
               //  if let subPos = dicTSubsL.index (where: { $0.key == subs  }) {
@@ -511,10 +556,13 @@ class Enrich {
                 }
             }
         }
-        let zearr = dicTSubsL["VHL"]
-        print ( "zeVHLLast :  \(zearr)")
+        */
+      //  dicTSubsL ["TP53"]!["VEGFA"] = 1
+        dicTSubsL [GHOST_TARGET] = [
+                                "PDCD1" :2,
+                                "CD274": 2]
+            
         
-        dicTSubsL ["TP53"]!["VEGFA"] = 2
     }
 }
 

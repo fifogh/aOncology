@@ -1,19 +1,21 @@
 //
-//  TargetTableViewCell.swift
+//  ComboDetailTableViewCell.swift
 //  aOncology
 //
-//  Created by Philippe-Faurie on 4/26/18.
+//  Created by Philippe-Faurie on 5/10/18.
 //  Copyright © 2018 Philippe-Faurie. All rights reserved.
 //
 
 import UIKit
 
-class TargetTableViewCell: UITableViewCell {
+class ComboDetailTableViewCell: UITableViewCell {
 
-    @IBOutlet var synoName: UILabel!
-    @IBOutlet var hugoName: UILabel!     // in case sysnonym was entered
-    @IBOutlet var aberration: UILabel!
-    @IBOutlet var symbolImage: UIImageView!
+    @IBOutlet var gene: UILabel!
+    @IBOutlet var hitScore: UILabel!
+    
+    @IBOutlet var TSub1: UILabel!
+    @IBOutlet var TSub2: UILabel!
+    @IBOutlet var TSub3: UILabel!
     
     override func awakeFromNib() {
         super.awakeFromNib()

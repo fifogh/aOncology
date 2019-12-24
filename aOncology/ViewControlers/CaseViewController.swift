@@ -58,8 +58,8 @@ extension CaseViewController: UITableViewDataSource, UITableViewDelegate {
         let nickName = caseL[indexPath.row].nickName
         let caseId   = caseL[indexPath.row].caseId
         
-        cell?.textLabel?.text = caseId
-        cell?.detailTextLabel?.text = nickName
+        cell?.textLabel?.text = nickName
+        cell?.detailTextLabel?.text = caseId
         
         return cell!
         
@@ -67,14 +67,21 @@ extension CaseViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-                caseL.remove(at: indexPath.row)
-                tableView.deleteRows(at: [indexPath], with: .fade)
+            
+            // remote data base deletion
+            let myCaseModel = CaseModel()
+            myCaseModel.deleteCase(theCase: caseL[indexPath.row])
+            
+            //local deletion
+            caseL.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
         }
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath , animated: true)
         dismiss(animated: true, completion: nil)
+        
         caseSelectDelegate.didSelectCase(caseRow: indexPath.row)
     }
     

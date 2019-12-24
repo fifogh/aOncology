@@ -54,7 +54,9 @@ class DebugViewController: UIViewController {
         protRnaCount    = comboL[drugCount-1][row].protRnaCount
         genomicCount    = comboL[drugCount-1][row].genomicCount
         actionableCount = comboL[drugCount-1][row].actionableCount
-        actedCount      = protRnaCount  + genomicCount
+        actedCount      = comboL[drugCount-1][row].actedCount
+        
+       // actedCount      = protRnaCount  + genomicCount
         
         
         str = "Redundancy: "     + String (redund) + "\n Redund Prot#: "  + String (redundProt) + "\n Redund Gen#: "  + String (redundGen) + "\n\n"
@@ -84,7 +86,8 @@ class DebugViewController: UIViewController {
                 }
             }
         }
-        dtRelText.text = str
+        dtRelText.text = str + "\n\n" + rulesLog
+        
     }
 
     /*

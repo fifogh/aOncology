@@ -14,6 +14,10 @@ class ComboDetailViewController: UIViewController {
     var row = 0               // what combo is that
     var reducedCombo = false  // in manual mode a sublist of drugs might have been used
     
+    var caseID = String ()
+    var memo   = String ()
+    var diag   = String ()
+    
     @IBOutlet var cureMatchScore: UILabel!
     @IBOutlet var matchScore: UILabel!
     @IBOutlet var totalScored: UILabel!
@@ -21,6 +25,7 @@ class ComboDetailViewController: UIViewController {
     @IBOutlet var warningImage: UIImageView!
     @IBOutlet var warningLabel: UILabel!
     
+    @IBOutlet var immunoImage: UIImageView!
     @IBOutlet var pointImage: UIImageView!
     
     @IBOutlet var ComboDetailTableView: UITableView!
@@ -30,15 +35,17 @@ class ComboDetailViewController: UIViewController {
     
     @IBOutlet var graphSlider: UISlider!
     
-    
+    @IBOutlet var communityImage: UIImageView!
+    @IBOutlet var communityButton: UIButton!
     // Slider Change
     @IBAction func sliderChangeValue(_ sender: UISlider) {
         
         self.graphView.thePoint = Int(sender.value)
         graphView.displayPoint (imageView : pointImage)
         row = self.graphView.thePoint
+        
         self.setAll()
-        self.checkWarning()
+        self.checkIndicators()
         ComboDetailTableView.reloadData()
     }
     
@@ -59,13 +66,25 @@ class ComboDetailViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         self.setAll()
-        self.checkWarning()
-        
+        self.checkIndicators()
     }
     
-    func checkWarning () {
-        warningImage.isHidden = comboL[drugCount-1][row].redundancy == false
-        warningLabel.isHidden = comboL[drugCount-1][row].redundancy == false
+    func checkIndicators () {
+        
+        warningImage.isHidden = comboL[drugCount-1][row].redundancy    == false
+        warningLabel.isHidden = comboL[drugCount-1][row].redundancy    == false
+        immunoImage.isHidden  = comboL[drugCount-1][row].immunoStatus  == .noImmuno
+        
+        if (loggedIn == false) {
+            communityImage.isHidden = true
+            communityButton.isEnabled = false
+            
+        } else {
+            communityImage.isHidden   = false
+            communityButton.isEnabled = true
+
+        }
+
     }
     
     func setAll () {
@@ -78,35 +97,7 @@ class ComboDetailViewController: UIViewController {
         
         comboToGraph = comboL[drugCount-1]
         pointToGraph = self.row              // where the sepcic combo is
-        /*
-        if ( 0 != 1 /*reducedCombo == false*/){
-            // use the combo as is
-          
-            
-        } else {
-            // im manual mode, the list of drugs is reduced
-            // recalculate the combolist based on teh complete drug list
-            // and find the position of the combo in this combolist
-            
-            let combosxx =  myCombMaker.combinationsWithoutRepetitionFrom (elements: dtRelL, taking: drugCount)
-            for elem in combosxx{
-                let combElem = Combination_C (dtRelList: elem, filter : calcMode == .auto
-                                              actionableCount: self.actionableTargetCount, pathogenicCount : targetL.count )
-                comboToGraph.append ( combElem )
-            }
-            comboToGraph.sort(by: { ($0.strengthScore > $1.strengthScore) })
-            
-            // find the psoition of row(ie score) of teh reduced combo in the new combolist
-            let score = comboL[drugCount-1][row].strengthScore
-            var r = 0
-            while  ( (comboToGraph[r].strengthScore > score ) && (r < comboToGraph.count )){
-                r = r + 1
-            }
-            
-            pointToGraph = r < comboToGraph.count ? r : r-1
-            
-        }
-        */
+
         
         // send the data to the graph
         var r = 0
@@ -141,11 +132,24 @@ class ComboDetailViewController: UIViewController {
         if segue.identifier == "toDebug" {
             if let destinationVC = segue.destination as? DebugViewController{
                 
-                
-                destinationVC.row = self.row
+                destinationVC.row       = self.row
                 destinationVC.drugCount = self.drugCount
                 
                 destinationVC.navigationItem.title = "DEBUG SCREEN"
+            }
+            
+        } else if segue.identifier == "toReview" {
+            if let destinationVC = segue.destination as? ReviewViewController{
+                
+                destinationVC.row       = self.row
+                destinationVC.drugCount = self.drugCount
+                
+                destinationVC.caseID     = self.caseID
+                destinationVC.memo       = self.memo
+                destinationVC.diagnostic = self.diag
+
+
+                destinationVC.navigationItem.title = "Review"
                 
             }
         }
@@ -199,11 +203,40 @@ extension ComboDetailViewController: UITableViewDataSource, UITableViewDelegate{
         
        
         let cell = tableView.dequeueReusableCell(withIdentifier: "cellComboDetailId") as! ComboDetailTableViewCell
-        let geneName = comboL[drugCount-1][row].dtRelL[indexPath.section].targetHitL[indexPath.row].target.hugoName
+        var geneName = comboL[drugCount-1][row].dtRelL[indexPath.section].targetHitL[indexPath.row].target.hugoName
+        geneName = geneName == GHOST_TARGET ? "(IMMUNO)" : geneName
+        
         let hitScore = comboL[drugCount-1][row].dtRelL[indexPath.section].targetHitL[indexPath.row].hitScore
         
         cell.gene.text = geneName
         cell.hitScore.text = String(format:"%.2f", hitScore)
+        
+        cell.TSub1.text = ""
+        cell.TSub2.text = ""
+        cell.TSub3.text = ""
+        
+        let tHit = comboL[drugCount-1][row].dtRelL[indexPath.section].targetHitL[indexPath.row]
+        
+        var i = 0
+        for s in tHit.targetSubsL {
+            i += 1
+            
+            var str = "via " + s.target.hugoName
+            
+            if (s.mode == SubsMode.indirect){
+                str = str + " pathway"
+            }
+            
+            if (i==1) {
+                cell.TSub1.text = str
+            } else if (i==2) {
+                cell.TSub2.text = str
+            } else if (i==3) {
+                cell.TSub3.text = str
+            }
+            
+        }
+        
  
         return cell
     }

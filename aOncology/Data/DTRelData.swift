@@ -1,4 +1,8 @@
- var dicDTRelL : [String: [String: [String:Double]]] =
+
+var dTargetL = [String: [String] ] ()
+
+
+var dicDTRelL : [String: [String: [String:Double]]] =
  [ 
     "ABCB1" :
         [ "" : 
@@ -194,6 +198,11 @@
              "brigatinib" : 146.00,
              "ceritinib" : 110.00]
         ],
+    
+    "AURKB" :
+        [ "" :
+            [ "fostamatinib" : 30.00 ]
+    ],
 
     "AXL" :
         [ "" : 
@@ -246,12 +255,14 @@
 
     "BMX" :
         [ "" : 
-           [ "ibrutinib" : 0.80 ]
+           [ "fostamatinib" : 30.00,
+             "ibrutinib" : 0.80 ]
         ],
 
     "BRAF" :
         [ "" : 
            [ "dabrafenib" : 3.20 ,
+             "encorafenib" : 0.5,
              "regorafenib" : 28.00,
              "sorafenib" : 38.00,
              "vemurafenib" : 31.00]
@@ -386,6 +397,7 @@
            [ "axitinib" : 91.00 ,
              "brigatinib" : 358.00,
              "imatinib" : 100.00,
+             "fostamatinib" : 20.00,
              "nilotinib" : 300.00,
              "pazopanib" : 6.00,
              "sunitinib" : 5.00]
@@ -1360,6 +1372,7 @@
         [ "" : 
            [ "axitinib" : 1000.00 ,
              "brigatinib" : 128.00,
+             "fostamatinib" : 30.00,
              "lenvatinib" : 61.00,
              "nintedanib" : 69.00,
              "pazopanib" : 140.00,
@@ -1385,6 +1398,7 @@
            [ "axitinib" : 1000.00 ,
              "brigatinib" : 358.00,
              "ceritinib" : 430.00,
+             "fostamatinib" : 40.00,
              "lenvatinib" : 51.60,
              "nintedanib" : 108.00,
              "pazopanib" : 130.00,
@@ -1421,7 +1435,9 @@
     "FLT1" :
         [ "" : 
            [ "axitinib" : 1.20 ,
+             "bevacizumab" : 0.0,
              "cabozantinib" : 12.00,
+             "fostamatinib" : 4.00,
              "lenvatinib" : 22.00,
              "midostaurin" : 912.00,
              "nintedanib" : 34.00,
@@ -1439,6 +1455,7 @@
              "brigatinib" : 2.10,
              "cabozantinib" : 11.30,
              "ceritinib" : 60.00,
+             "fostamatinib" : 3.00,
              "ibrutinib" : 73.00,
              "midostaurin" : 49.00,
              "nintedanib" : 26.00,
@@ -1453,6 +1470,7 @@
            [ "axitinib" : 0.30 ,
              "brigatinib" : 58.00,
              "cabozantinib" : 6.00,
+             "fostamatinib" : 4.00,
              "lenvatinib" : 5.20,
              "nintedanib" : 13.00,
              "pazopanib" : 47.00,
@@ -1479,6 +1497,7 @@
         [ "" : 
            [ "brigatinib" : 198.00 ,
              "dasatinib" : 49.00,
+             "fostamatinib": 50.0,
              "ibrutinib" : 96.00,
              "ponatinib" : 49.00,
              "vandetanib" : 49.00]
@@ -1639,9 +1658,38 @@
              "palonosetron" : 49.00]
         ],
 
+    
+    "IDH1" :
+        [ "" :
+            [ "ivosidenib" : 49.00 ],
+          "R132C" :
+            [ "ivosidenib" : 17.00 ],
+          "R132H" :
+            [ "ivosidenib" : 11.00 ],
+          "R132S" :
+            [ "ivosidenib" : 12.00 ],
+          "R132L" :
+            [ "ivosidenib" : 13.00 ],
+          "R132G" :
+            [ "ivosidenib" : 18.00 ],
+          
+          
+    ],
     "IDH2" :
         [ "" : 
-           [ "enasidenib" : 12.00 ]
+           [ "enasidenib" : 34.00,
+             "ivosidenib" : 10000.00],
+          
+          "R172K" :
+            [ "ivosidenib" : 10000.00,
+              "enasidenib" : 214.00 ],
+          "R140Q" :
+            [ "enasidenib" : 1.6 ],
+          "R172S" :
+            [ "enasidenib" : 155.00 ],
+          
+          
+          
         ],
 
     "IGF1R" :
@@ -1767,6 +1815,7 @@
         [ "" : 
            [ "brigatinib" : 154.00 ,
              "ceritinib" : 600.00,
+             "fostamatinib" : 7.00,
              "ruxolitinib" : 2.80,
              "tofacitinib" : 20.00],
 
@@ -1784,8 +1833,10 @@
     "KDR" :
         [ "" : 
            [ "axitinib" : 0.26 ,
+             "bevacizumab" : 0.0,
              "cabozantinib" : 0.04,
              "ceritinib" : 600.00,
+             "fostamatinib" : 30.00,
              "lenvatinib" : 4.00,
              "midostaurin" : 86.00,
              "nintedanib" : 13.00,
@@ -1833,6 +1884,7 @@
            [ "brigatinib" : 512.00 ,
              "ceritinib" : 600.00,
              "dasatinib" : 49.00,
+             "fostamatinib" : 30.00,
              "ibrutinib" : 33.20,
              "nintedanib" : 16.00,
              "pazopanib" : 49.00,
@@ -1851,7 +1903,7 @@
            [ "brigatinib" : 13.00 ]
         ],
 
-    "LYMK1" :
+    "LIMK1" :
         [ "" : 
            [ "dabrafenib" : 49.00 ]
         ],
@@ -1862,6 +1914,7 @@
              "brigatinib" : 241.00,
              "ceritinib" : 840.00,
              "dasatinib" : 49.00,
+             "fostamatinib" : 40.00,
              "ibrutinib" : 200.00,
              "nintedanib" : 195.00,
              "ponatinib" : 49.00,
@@ -1871,19 +1924,22 @@
 
     "MAP2K1" :
         [ "" : 
-           [ "cobimetinib" : 0.95 ,
-             "trametinib" : 0.92]
+            [ "binimetinib": 12,
+              "cobimetinib" : 0.95 ,
+              "trametinib" : 0.92]
         ],
 
     "MAP2K2" :
         [ "" : 
-           [ "cobimetinib" : 199.00 ,
+           [ "binimetinib": 46,
+             "cobimetinib" : 199.00 ,
              "trametinib" : 1.80]
         ],
 
     "MAP3K9" :
         [ "" : 
-           [ "brigatinib" : 218.00 ]
+           [ "brigatinib" : 218.00,
+             "fostamatinib" : 7.00 ]
         ],
 
     "MAP4K5" :
@@ -1891,6 +1947,12 @@
            [ "vemurafenib" : 51.00 ]
         ],
 
+    "MAPK10" :
+        [ "" :
+            [ "fostamatinib" : 40.00 ]
+        ],
+
+    
     "MAPK14" :
         [ "" : 
            [ "bosutinib" : 950.00 ]
@@ -1973,19 +2035,22 @@
              "temsirolimus" : 0.10]
         ],
 
-    "NEK1" :
+ /*   "NEK1" :
         [ "" : 
            [ "dabrafenib" : 49.00 ]
         ],
+ */
 
     "NEK11" :
         [ "" : 
-           [ "vemurafenib" : 317.00 ]
+           [ "vemurafenib" : 317.00,
+            "dabrafenib"   : 49.00   ]
         ],
 
     "NTRK1" :
         [ "" : 
-           [ "regorafenib" : 49.00 ]
+           [ "fostamatinib" : 30.00,
+             "regorafenib" : 49.00 ]
         ],
 
     "NTRK2" :
@@ -2140,13 +2205,15 @@
     "PIK3CD" :
         [ "" : 
            [ "copanlisib" : 0.70 ,
-             "idelalisib" : 2.50]
+             "idelalisib" : 2.50,
+             "duvelisib" : 1.00 ]
         ],
 
     "PIK3CG" :
         [ "" : 
            [ "copanlisib" : 6.40 ,
-             "idelalisib" : 89.00]
+             "idelalisib" : 89.00,
+             "duvelisib" : 50.00 ]
         ],
 
     "PKCG" :
@@ -2163,6 +2230,12 @@
         [ "" : 
            [ "brigatinib" : 611.00 ]
         ],
+    
+    "PLK3" :
+        [ "" :
+            [ "fostamatinib" : 50.00 ]
+    ],
+
 
     "POLD1" :
         [ "" : 
@@ -2221,7 +2294,7 @@
 
     "PRKD1" :
         [ "" : 
-           [ "brigatinib" : 197.00 ]
+           [ "brigatinib" : 95.00 ]
         ],
 
     "PRKD2" :
@@ -2287,6 +2360,7 @@
     "RAF1" :
         [ "" : 
            [ "dabrafenib" : 5.00 ,
+             "encorafenib" : 0.3,
              "regorafenib" : 2.50,
              "sorafenib" : 6.00,
              "vemurafenib" : 48.00]
@@ -2299,6 +2373,7 @@
              "brigatinib" : 65.00,
              "cabozantinib" : 4.00,
              "ceritinib" : 400.00,
+             "fostamatinib" : 10.00,
              "ibrutinib" : 36.50,
              "lenvatinib" : 6.40,
              "ponatinib" : 49.00,
@@ -2440,6 +2515,7 @@
            [ "bosutinib" : 3.50 ,
              "brigatinib" : 329.00,
              "dasatinib" : 0.80,
+             "fostamatinib" : 20.00,
              "ibrutinib" : 171.00,
              "midostaurin" : 800.00,
              "nintedanib" : 156.00,
@@ -2488,6 +2564,11 @@
         [ "" : 
            [ "brigatinib" : 492.00 ]
         ],
+    
+    "TBK1" :
+        [ "" :
+            [ "fostamatinib" : 20.00 ]
+    ],
 
     "TEC" :
         [ "" : 
@@ -2559,7 +2640,8 @@
 
     "TNK2" :
         [ "" : 
-           [ "osimertinib" : 71.00 ,
+           [ "fostamatinib" : 20.00,
+             "osimertinib" : 71.00 ,
              "vemurafenib" : 19.00]
         ],
 
@@ -2604,6 +2686,7 @@
     "TSSK1B" :
         [ "" : 
            [ "brigatinib" : 4.30 ,
+             "fostamatinib": 50.0,
              "ceritinib" : 23.00]
         ],
 
@@ -2642,6 +2725,11 @@
              "fluorouracil" : 49.00,
              "pemetrexed" : 49.00]
         ],
+    
+    "ULK3" :
+        [ "" :
+            [ "fostamatinib" : 20.00 ]
+    ],
 
     "VEGFA" :
         [ "" : 
@@ -2665,10 +2753,47 @@
            [ "brigatinib" : 19.00 ,
              "dasatinib" : 49.00,
              "ibrutinib" : 6.50,
+             "fostamatinib": 40.0,
              "ponatinib" : 49.00,
              "vandetanib" : 49.00,
              "vemurafenib" : 799.00]
         ]
 ]
+ 
+ 
+ //--------------------
+ // create a list of targets per drug
+ // reverse of the upabove dictionary
+ class D2Targets {
+    
+    func addTarget (drug:String, target:String) {
+        if dTargetL[drug] != nil {
+            
+             // if target already there do not add it twice
+             if let tgt = dTargetL[drug]!.index( where: {  ($0 == target)  }) {
+                
+             } else {
+                dTargetL[drug]!.append(target)
+            }
+            
+        } else {
+            dTargetL[drug] = [target]
+        }
+    }
+    
+    func create () {
+        
+     //   var dicDTRelL : [String: [String: [String:Double]]] =
 
+        
+        for t in dicDTRelL.keys {
+            for mut in dicDTRelL[t]!.keys {
+                for d in dicDTRelL[t]![mut]! {
+                   let d2 = d.key
+                    self.addTarget (drug:d2, target:t)
+                }
+            }
+        }
+    }
 
+ }

@@ -10,12 +10,15 @@ import Foundation
 
 let hitThreshold = 3.0      // above this 2 Hitscore make 2 drugs non redundant on the same target
 
+//let platinumParp = ["cisplatin", "carboplatin", "oxaliplatin", "mitomycin", "olaparib", "rucaparib", "niraparib"]
+
+
 //------------------------------------------------------------------------------
 // TYPES
-enum SubsMode :  Int {case direct, semidirect, indirect }    // Substitutions Types
+enum SubsMode :  Int {case direct, semidirect, indirect  }           // Substitutions Types
+enum DrugType   {case inhibitor, antibody, immunotherapy, other }    // Drugs types
 
-
-
+var immunoDrugL = Array(dicDTRelL ["CD274"]![""]!.keys) + Array(dicDTRelL ["PDCD1"]![""]!.keys)
 
 //------------------------------------------------------------------------------
 // DRUG Class
@@ -26,7 +29,7 @@ class Drug_C {
     var allowed  : Bool      // user selection yes/no
     var approved : Int       // approved with diagnosis
     var blackBox : Bool      // has a FDA black Box Warning
-    
+    var drugType : DrugType  // antibody etc....
     
     init (drugId: Int, drugName: String, allowed: Bool){
         self.id       = drugId
@@ -34,6 +37,25 @@ class Drug_C {
         self.allowed  = allowed
         self.approved = 0
         self.blackBox = false
+        self.drugType = .antibody
+        
+        self.setType()
+        
+    }
+    
+    func setType () {
+        
+        self.drugType = .other
+        
+        if immunoDrugL.contains(self.drugName) {
+            self.drugType = .immunotherapy
+            
+        } else if (self.drugName.hasSuffix("nib")) {
+           self.drugType = .inhibitor
+            
+        } else if (self.drugName.hasSuffix("mab")) {
+            self.drugType = .antibody
+        }
     }
     
     func markApproved ( pathoClass: String ){
@@ -133,10 +155,12 @@ class TargetHit_C {
     var hitScore      : Double              // Calculated
     var hitScoreRuled : Bool                // hitScore has been affected by a special rule
     
- 
-    var targetSubsL  : [TargetHit_C]       // List of targets substitution
+    var drugName :String
     
-    init (id: Int,  target: Target_C , mode: SubsMode , Ic50: Double  ) {
+    var subsNb        : Int
+    var targetSubsL   : [TargetHit_C]       // List of targets substitution
+    
+    init (id: Int,  target: Target_C , mode: SubsMode ,drugName:String, Ic50: Double  ) {
 
         self.target      = target
         self.mode        = mode
@@ -145,14 +169,18 @@ class TargetHit_C {
         self.Ic50          = Ic50
         self.hitScore      = 0
         self.hitScoreRuled = false
+        self.subsNb        = 0
+        
+        self.drugName = drugName
         self.targetSubsL   = [TargetHit_C]()
         
-        self.hitScore   = self.calcHitScore()
         self.forceMode  = self.voidProteinMarker()
+        self.hitScore   = self.calcHitScore()
+
     }
     
     // partial init without Ic50 - Hit is through target substitutions
-    init (id: Int, target: Target_C, mode: SubsMode){
+    init (id: Int, target: Target_C, mode: SubsMode,   drugName:String){
         
         self.target      = target
         self.mode        = mode
@@ -160,7 +188,10 @@ class TargetHit_C {
 
         self.hitScore    = 0
         self.hitScoreRuled = false
+        self.subsNb        = 0
 
+        self.drugName = drugName
+        
         self.targetSubsL = [TargetHit_C]()
         self.forceMode  = self.voidProteinMarker()
 
@@ -168,13 +199,19 @@ class TargetHit_C {
 
     // Except Rule 13
     func voidProteinMarker() -> Bool {
+        
+        var voidPenalty = false
+        
         if ((target.hugoName == "CD274") || (target.hugoName == "ERBB2") ||
             (target.hugoName == "AR")    || (target.hugoName == "ESR1")) {
             
-            return (true)
-        } else {
-            return (false)
+            if ( (target.markerType == MarkerType.protein ) || ( target.markerType == MarkerType.rna)) {
+               rulesLog += "Void Protein/Rna Penalty on: " + String(target.hugoName) + "\n"
+               voidPenalty = true
+            }
         }
+        
+        return (voidPenalty)
     }
     
     
@@ -193,7 +230,17 @@ class TargetHit_C {
 
     
     func isIndirectHitScore ()  {
+       
+       // rule 66 - 72
+       /*
+       if (platinumParp.contains (drugName))  {
+            if (target.hugoName == "TERT") || (target.hugoName == "MUTYH") {
+               hitScore = 0.75*hitScore/2;
+                rulesLog += "(#66 #72) Half HitScore of : " + String(drugName) + " on " + String(target.hugoName) + "\n"
+            }
+         
         // Only get 75% of score for Pathways ( indirect )
+        } else*/
         if (mode == SubsMode.indirect) {
             hitScore = 3*hitScore/4;
         }
@@ -204,7 +251,7 @@ class TargetHit_C {
         // in case of protein Marker : half of the calculated score
         // unless this marker is always counted as genomic
         if ((( target.markerType == MarkerType.protein ) ||
-             ( target.markerType == MarkerType.rna)) && (forceMode == false)) {
+             ( target.markerType == MarkerType.rna)) && (target.forceGenomic == false)) {
             hitScore = hitScore / 2 ;
         }
     }
@@ -240,7 +287,7 @@ class TargetHit_C {
             hitScore = 0;
         }
         
-     //self.isIndirectHitScore()
+        self.isIndirectHitScore()
         self.isProteinHitScore()
         self.cleanHitScore()
         
@@ -249,7 +296,7 @@ class TargetHit_C {
     
     //-------------------------------------------------------
     // Hitscore calculation
-    func calcSubsHitScore ()  {
+    func calcSubsHitScore (subsTotal: Int)  {
         
         // the Mean of target Substitution HitScores
         
@@ -261,10 +308,13 @@ class TargetHit_C {
             for s in targetSubsL {
                 hitSum = hitSum + s.hitScore
             }
-            self.hitScore = hitSum / Double (targetSubsL.count)
+          //  self.hitScore = hitSum / Double (targetSubsL.count)
+            self.hitScore = hitSum / Double (subsTotal)
+
         }
         
-        self.isIndirectHitScore()
+        
+     //   self.isIndirectHitScore()
         self.isProteinHitScore()
     }
     
