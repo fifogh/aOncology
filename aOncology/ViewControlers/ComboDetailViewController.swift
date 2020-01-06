@@ -50,6 +50,24 @@ class ComboDetailViewController: UIViewController {
     }
     
     
+    @IBAction func Increment(_ sender: Any) {
+        let max = comboL[drugCount-1].count
+        if (row < max-1 ) {
+           row = row+1
+        }
+        self.setAll()
+        self.checkIndicators()
+        ComboDetailTableView.reloadData()
+    }
+    
+    @IBAction func Decrement(_ sender: Any) {
+        if (row>0) {
+            row = row-1
+        }
+        self.setAll()
+        self.checkIndicators()
+        ComboDetailTableView.reloadData()
+    }
     
     
     override func viewDidLoad() {
